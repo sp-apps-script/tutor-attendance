@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vonex Horario</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/4a8a06bcc2.js" crossorigin="anonymous"></script>
+  <!-- Css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <link href="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      position: relative;
+      color:#888;
+    }
+
+    p {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .form__loading,.form__loading2 {
+      display: none;
+      left: 0;
+      right: 0;
+    }
+
+    .form__loading--active {
+      display: flex;
+      z-index: 999;
+    }
+
+    a {
+      text-decoration: none;
+      color: #555;
+    }
+
+    i {
+      font-size: 3rem;
+    }
+
+    .box {
+      transition: all ease .5s;
+      min-height: 210px;
+    }
+
+    .box:hover {
+      border-color: #0d6efd !important;
+      box-shadow: 0 0 5px #0d6efd;
+      cursor: pointer;
+    }
+
+    #assistantModalLabel {
+      text-decoration: uppercase !important;
+    }
+
+    .modal-title {}
+
+    #list-attendance{
+      overflow-y: auto;
+      max-height: 400px !important;
+      padding-right: 1rem;
+    }
+
+    .form-check{
+      padding-left: 0 !important;
+    }
+    .form-check:hover{
+      background-color: rgba(0,0,0, 0.1) !important;
+    }
+  </style>
+
+  <!-- Script -->
+  <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body>
+  <!-- LOADING-->
+  <!--<div class="loading w-100 vh-100 position-absolute justify-content-center align-items-center bg-white opacity-100">
+    <div>
+      <p class="h2">No Data</p>
+    </div>
+  </div>-->
+
+  <!-- CONTAINER -->
+  <div class="d-flex flex-column align-items-center container">
+    <!-- Header -->
+    <header class="px-4 my-4 text-center">
+      <img src="https://vonex.edu.pe/wp-content/uploads/2022/11/Recurso-1-3.png"
+        alt="Academia Vonex" width="158" height="54">
+
+      <h1 class="display-5 fw-bold mt-4 text-success">TUTORES</h1>
+    </header>
+  </div>
+
+  <!-- Menu -->
+  <div class="container px-4 py-4" id="icon-grid">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
+      <div class="col d-flex align-items-start">
+        <a class="border px-3 py-3 rounded box" onclick="assistantModal();">
+          <h3 class="fw-bold mb-0 fs-4">Asistencia de Alumnos</h3>
+          <i class="fa-solid fa-list-check mt-5 text-primary d-block m-auto text-center"></i>
+        </a>
+      </div>
+      <div class="col d-flex align-items-start">
+        <a class="border px-3 py-3 rounded box" onclick="callModal();">
+          <h3 class="fw-bold mb-0 fs-4">Formato de llamadas</h3>
+          <i class="fa-solid fa-mobile-screen-button mt-5 text-primary d-block m-auto text-center"></i>
+        </a>
+      </div>
+      <div class="col d-flex align-items-start">
+        <a class="border px-3 py-3 rounded box" onclick="conversationModal();">
+          <h3 class="fw-bold mb-0 fs-4">Formato de conversaciones</h3>
+          <i class="fa-sharp fa-solid fa-comments mt-5 text-primary d-block m-auto text-center"></i>
+        </a>
+      </div>
+      <div class="col d-flex align-items-start">
+        <a href="https://datastudio.google.com/reporting/bcaa8d65-d715-4557-9dc5-9b041411a95c/page/p_974zoiva2c/edit" target="_BLANK" class="border px-3 py-3 rounded box">
+          <h3 class="fw-bold mb-0 fs-4">Estadisticas de Alumnos</h3>
+          <i class="fa-solid fa-chart-pie mt-5 text-primary d-block m-auto text-center"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Attendance -->
+  <div class="modal fade" id="assistance" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Loading-->
+        <div
+          class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+
+        <div class="modal-header">
+          <h2 class="modal-title">Registro de Asistencia</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form class="formAttendance" id="formAttendance" name="formAttendance">
+          <div class="modal-body">
+            <nav>
+              <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">QR</button>
+                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Lista</button>
+            </nav>
+
+            <div class="container p-0">
+              <div class="row">
+                <div class="col">
+                  <!-- Type -->
+                  <div class="mb-2">
+                    <label for="type" class="form-label">Tipo de registro:</label>
+                    <select class="form-select" id="type" name="type" required>
+                      <option value="A"selected>PRESENTE</option>
+                      <option value="T">TARDANZA</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col">
+                  <!-- Week -->
+                  <div class="mb-4">
+                    <label for="week" class="form-label">Semana:</label>
+                    <select class="form-select" id="week" name="week" required>
+                      <!--<option value="">Seleccionar semana</option>-->
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab Container -->
+            <div class="tab-content p-3 border" id="nav-tabContent">
+              <!-- QR -->
+              <div class="tab-pane fade active show" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                <div id="qr-reader" class=""></div>
+                <div id="qr-reader-results"></div>
+              </div>
+              
+              <!-- List -->
+              <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <div class="" id="list-attendance"></div>
+                <div class="modal-footer-no mb-0 d-flex justify-content-end mt-3 gap-2">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  <button type="submit" class="btn btn-primary" id="btn-enviar">Enviar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form -->
+  <div class="modal fade" id="conversation" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Loading-->
+        <!--<div
+          class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>-->
+
+        <form class="formData" id="formData" name="formData">
+          <div class="modal-header">
+            <h2 class="modal-title">Formulario de Registro</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- <h3 class="text-center mb-3 text-success">Semestral UNI Presencial</h3> -->
+            <div class="mb-2">
+              <label for="id_alumn" class="form-label">Alumno</label>
+              <select class="form-select" aria-label="Default select example" id="id_alumn" name="id_alumn" required>
+                <!-- <option selected>Seleccionar un Alumno</option> -->
+              </select>
+            </div>
+
+            <div class="mb-2 hide-communicate">
+              <label for="communicate" class="form-label">Me comuniqué con</label>
+              <!--<input type="text" class="form-control" id="communicate" name="communicate" required>-->
+              <select class="form-select" id="communicate" name="communicate" required>
+                <option value="Alumno" selected>Alumno</option>
+                <option value="Apoderado">Apoderado</option>
+              </select>
+            </div>
+
+            <div class="mb-2 hide-absence">
+              <label for="absence" class="form-label">Motivo de falta</label>
+              <!--<input type="text" class="form-control" id="absence" name="absence" required>-->
+              <select class="form-select" id="absence" name="absence" required>
+                <option value="Entrevista personal">Entrevista personal</option>
+                <option value="Estrategias de estudio">Estrategias de estudio</option>
+                <option value="Seguimiento academico">Seguimiento académico</option>
+                <option value="Inasistencia">Inasistencia</option>
+                <option value="Tardanza">Tardanza</option>
+                <option value="Faltas">Faltas</option>
+                <option value="Morosidad">Morosidad</option>
+                <option value="Disciplina">Disciplina</option>
+                <option value="Citas">Citas</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+
+            <div class="mb-2">
+              <label for="observation" class="form-label">Observaciones</label>
+              <textarea class="form-control" id="observation" name="observation" required rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <input type="hidden" id="action" name="action" value="conversations">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" id="btn-enviar">Enviar</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("load", (event) => {
+    });
+
+    // Api
+    let registerAlumns = <?!= JSON.stringify(registerAlumns) ?>;
+
+    // Div
+    let loading = document.querySelector(".form__loading");
+    let divCommunicate = document.querySelector(".hide-communicate");
+    let divAbsence = document.querySelector(".hide-absence");
+
+    // Field
+    let alumn = document.querySelector("#id_alumn");
+    let communicate = document.querySelector("#communicate");
+    let absence = document.querySelector("#absence");
+    let observation = document.querySelector("#observation");
+    let formAction = document.querySelector("#action");
+    let btnEnviar = document.querySelector("#btn-enviar");
+
+    let type =  document.querySelector("#type");
+    let todayW = document.querySelector("#week");
+
+   // List Alumn Select
+    let alumns = document.querySelector('#id_alumn');
+    for (const [index, value] of registerAlumns.entries()) {
+      const opt = document.createElement('option');
+      opt.value = value[0];
+      opt.innerHTML = `${value[2]} ${value[3]}`;
+      alumns.appendChild(opt);
+    }
+
+    // List Alumn Attendance
+    let listAttendance = document.querySelector('#list-attendance');
+    for (let [index, value] of registerAlumns.entries()) {
+      index = index + 1;
+      const checkDiv = document.createElement('div');
+      const checkLabel = document.createElement('label');
+      const checkInput = document.createElement('input');
+
+      checkDiv.className = "form-check d-flex justify-content-between pl-0";
+      checkInput.classList.add("form-check-input");
+      checkLabel.classList.add("form-check-label");
+
+      checkInput.type = "checkbox";
+      checkInput.value = value[0];
+      checkInput.name = "alumns";
+      checkInput.id = value[0];
+
+      if(index <= 9 ){
+        index = "0" + index;
+      }
+
+      checkLabel.innerHTML = `${index}. ${value[2]} ${value[3]}`;
+      checkLabel.htmlFor = value[0];
+
+      checkDiv.appendChild(checkLabel);
+      checkDiv.appendChild(checkInput);
+      listAttendance.appendChild(checkDiv);
+    }
+
+    // List Weeks
+    for (let j = 1; j <= 52; j++) {
+      const opt = document.createElement('option');
+      opt.value = j;
+      opt.innerHTML = j;
+      todayW.appendChild(opt);
+    }
+
+    // Send Data Forms
+    formData.addEventListener("submit", sendData);
+    async function sendData(e) {
+      loading.classList.add("form__loading--active");
+      e.preventDefault();
+      let formAlumn = alumn.value;
+      let formCommunicate = communicate.value;
+      let formAbsence = absence.value;
+      let formObservation = observation.value;
+      let formActionS = formAction.value;
+
+      google.script.run.sendform(formAlumn,formCommunicate,formAbsence,formObservation,formActionS);
+
+      loading.classList.remove("form__loading--active");
+      $("#conversation").modal("hide");
+      document.querySelector("#formData").reset();
+      Swal.fire({
+        icon: 'success',
+        title: 'Registrado',
+        text: 'El registro fue guardado correctamente!',
+        showConfirmButton: false,
+        timer: 3000
+      })
+    }
+
+    // Send Data Attendance
+    formAttendance.addEventListener("submit", sendData);
+    async function sendData(e) {
+      loading.classList.add("form__loading--active");
+      e.preventDefault();
+      let aType = type.value;
+      let aWeek = todayW.value;
+
+      let alumnsSelected = [];
+      let checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
+      for (let i = 0; i < checkboxes.length; i++) {
+        alumnsSelected.push(checkboxes[i].value)
+      }
+
+      google.script.run.withSuccessHandler(result => {
+          console.log(result);
+          Swal.fire({
+            icon: 'success',
+            title: 'Exito',
+            text: 'La asistencia fue guardada correctamente!',
+            showConfirmButton: false,
+            timer: 3000
+          })
+          $("#assistance").modal("hide");
+          loading.classList.remove("form__loading--active");
+        }).withFailureHandler(err =>{
+          console.log("Error");
+          loading.classList.remove("form__loading--active");
+        }).receiveAttendance(aType, aWeek, alumnsSelected);
+    }
+
+
+
+    // Modal Assistant
+    function assistantModal() {
+      //document.querySelector("#form").reset();
+      setTimeout(function(){
+        html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+      },200);
+      $("#assistance").modal("show");
+    }
+
+    // Modal Call
+    function callModal() {
+      formAction.value = "calls";
+      //document.querySelector("#action").value = "calls";
+      document.querySelector("#formData").reset();
+      divCommunicate.style.display = 'block';
+      divAbsence.style.display = 'block';
+      communicate.required = true;
+      absence.required = true;
+      $("#conversation").modal("show");
+    }
+    // Modal Conversation
+    function conversationModal() {
+      formAction.value = "conversations";
+      //document.querySelector("#action").value = "conversations";
+      document.querySelector("#formData").reset();
+      divCommunicate.style.display = 'none';
+      //divAbsence.style.display = 'none';
+      communicate.required = false;
+      //absence.required = false;
+      $("#conversation").modal("show");
+    }
+    
+    // WebCam
+    var html5QrcodeScanner;
+    var resultContainer = document.getElementById('qr-reader-results');
+    var lastResult, countResults = 0;
+    async function onScanSuccess(decodedText, decodedResult) {
+      if (decodedText !== lastResult) {
+        ++countResults;
+        lastResult = decodedText;
+        // Handle on success condition with the decoded message.
+        var tipo = document.getElementById("type").value; //------------------
+        console.log(`Scan result ${decodedText}`, decodedResult);
+        
+        let w = todayW.value;
+
+        google.script.run.withSuccessHandler(result => {
+          console.log(result);
+
+          if(result == "ok"){
+            // Success
+            Swal.fire({
+              icon: 'success',
+              title: 'Exito',
+              text: 'Las Asistencia fue guardada correctamente!',
+              showConfirmButton: false,
+              timer: 3000
+            });
+          }else{
+            // Error
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'el usuario ya fue registrado!',
+              showConfirmButton: false,
+              timer: 3000
+            });
+          }
+
+        }).withFailureHandler(e =>{
+          console.log("Error");
+
+        }).sendback(decodedText,tipo,w);
+        
+        //google.script.run.sendback(decodedText,tipo,w);
+        
+        await waitme()
+        //$('#qr-reader-results').prepend("<p>" + decodedText + " - " + tipo + "</p>");
+      }
+    }
+    
+    function waitme(){
+      promise1=new Promise(function(resolve){
+        setTimeout(function(){
+          resolve('ok');
+          
+          html5QrCode.stop()
+        },1000)
+      })
+      return promise1;
+    }
+    
+    window.addEventListener('beforeunload', function (e) {
+      // Cancel the event
+      e.preventDefault();
+      // Chrome requires returnValue to be set
+      e.returnValue = '3';
+    });
+  </script>
+
+</body>
+
+</html>
