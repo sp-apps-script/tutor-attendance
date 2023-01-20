@@ -29,6 +29,18 @@
       font-size: 14px;
     }
 
+    .loading {
+      display: none;
+      left: 0;
+      right: 0;
+      z-index: 1;
+    }
+
+    .loading--active {
+      display: flex;
+
+    }
+
     .form__loading,
     .form__loading2 {
       display: none;
@@ -49,25 +61,31 @@
     i {
       font-size: 3rem;
     }
+    input[type='text']{
+      width: 150px !important;
+      max-height: 27px !important;
+    }
 
     .box {
       transition: all ease .5s;
-      min-height: 210px;
-      min-width: 185px;
+      min-height: 190px;
+      min-width: 157px;
       width: 100%;
+      transition: all ease .5s;
     }
 
     .box:hover {
       border-color: #0d6efd !important;
       box-shadow: 0 0 5px #0d6efd;
       cursor: pointer;
+      transform: translateY(-15px);
     }
 
     #assistantModalLabel {
       text-decoration: uppercase !important;
     }
 
-    #list-attendance {
+    #list-attendance,#list-alumns-goal {
       overflow-y: scroll;
       max-height: 350px !important;
       padding-right: 0.5rem;
@@ -99,8 +117,7 @@
 
   <!-- Script -->
   <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
   </script>
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -108,11 +125,11 @@
 
 <body>
   <!-- LOADING-->
-  <!--<div class="loading w-100 vh-100 position-absolute justify-content-center align-items-center bg-white opacity-100">
+  <div class="loading w-100 vh-100 position-absolute justify-content-center align-items-center bg-white opacity-100">
     <div>
-      <p class="h2">No Data</p>
+      <p class="h2 align-items-center"><i class="fa-solid fa-ban"></i> USUARIO NO AUTORIZADO</p>
     </div>
-  </div>-->
+  </div>
 
   <!-- HEADER -->
   <div class="d-flex flex-column align-items-center container">
@@ -126,45 +143,62 @@
   </div>
 
   <!-- Email Tag -->
-  <div class="container pt-5 pb-3">
+  <div class="container pt-3 mb-4">
     <div class="row">
-      <div class="col-3">
-        <p><b class="mr-3">Email:</b> <span id="email"><?= email ?></span></p>
+      <div class="col-12 col-sm-6 d-flex align-items-center mb-2">
+        <p class="mb-0"><b class="mr-3">EMAIL:</b> <span id="email"><?= email ?></span></p>
+      </div>
+      <div class="col-12 col-sm-6 d-flex justify-content-end">
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <label for="tutor-cycle" class="col-form-label fw-bold">CICLO:</label>
+          </div>
+          <div class="col-auto">
+            <select class="form-select" id="tutor-cycle" name="tutor-cycle">
+          </select>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Menu -->
-  <div class="container" id="icon-grid">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+  <div class="container mt-5" id="icon-grid">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
       <div class="col d-flex">
         <a class="border rounded box" onclick="attendanceModal();">
-          <h3 class="fw-bold mb-0 fs-4 text-center mt-3">Asistencia</h3>
+          <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Asistencia</h3>
           <i class="fa-solid fa-list-check mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
       <div class="col d-flex">
         <a class="border rounded box" onclick="callModal();">
-          <h3 class="fw-bold mb-0 fs-4 text-center mt-3">Llamadas</h3>
+          <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Llamadas</h3>
           <i class="fa-solid fa-mobile-screen-button mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
       <div class="col d-flex">
         <a class="border rounded box" onclick="conversationModal();">
-          <h3 class="fw-bold mb-0 fs-4 text-center mt-3">Conversaciones</h3>
+          <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Conversaciones</h3>
           <i class="fa-sharp fa-solid fa-comments mt-5 text-primary d-block m-auto text-center"></i>
+        </a>
+      </div>
+      <div class="col d-flex">
+        <a class="border rounded box" onclick="goalModal();">
+          <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Metas</h3>
+          <i class="fa-solid fa-bullseye mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
       <div class="col d-flex">
         <a href="https://datastudio.google.com/reporting/bcaa8d65-d715-4557-9dc5-9b041411a95c/page/p_974zoiva2c/edit"
           target="_BLANK" class="border rounded box">
-          <h3 class="fw-bold mb-0 fs-4 text-center mt-3">Estadisticas</h3>
+          <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Estadisticas</h3>
           <i class="fa-solid fa-chart-pie mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
       <div class="col d-flex">
         <a class="border rounded box">
-          <h3 class="fw-bold mb-0 fs-4 text-center mt-3">Notas</h3>
+          <h3 class="fw-bold mb-0 fs-4 text-center mt-4">Notas</h3>
           <i class="fa-solid fa-list-ol mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
@@ -184,7 +218,7 @@
         </div>
 
         <div class="modal-header">
-          <h2 class="modal-title">Registrar asistencia</h2>
+          <h2 class="modal-title">Registrar Asistencia</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -308,7 +342,7 @@
                   </div>
                   <div class="mb-2">
                     <label for="dni" class="form-label w-100">Ingresar DNI</label>
-                    <input class="form-control" id="dni" name="dni" required oninvalid="this.setCustomValidity('Ingresar DNI')" oninput="setCustomValidity('')"/>
+                    <input class="form-control" id="dni" name="dni" required oninvalid="this.setCustomValidity('Ingresar DNI')" oninput="setCustomValidity('')" onkeypress="if ( isNaN( String.fromCharCode(event.keyCode) )) return false;"/>
                   </div>
                   <div class="modal-footer-no mb-0 d-flex justify-content-end mt-3 gap-2">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -328,12 +362,12 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <!-- Loading-->
-        <!--<div
+        <div
           class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75">
           <div class="spinner-border" role="status">
             <span class="sr-only"></span>
           </div>
-        </div>-->
+        </div>
 
         <form class="formData" id="formData" name="formData">
           <div class="modal-header">
@@ -391,412 +425,673 @@
     </div>
   </div>
 
+  <!-- Modal Goal -->
+  <div class="modal fade" id="goal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <!-- Loading-->
+        <div
+          class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75 rounded">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+
+        <form class="formGoal" id="formGoal" name="formGoal">
+          <div class="modal-header">
+            <h2 class="modal-title">Registrar Metas</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body pt-1">
+            <!-- Week -->
+            <div class="mb-3">
+              <label for="week-list" class="form-label">Semana:</label>
+              <select class="form-select" id="week-goal" name="week-goal" required oninvalid="this.setCustomValidity('Seleccionar semana')" oninput="setCustomValidity('')">
+                <option value="" selected>Seleccionar semana</option>
+              </select>
+            </div>
+
+            <div class="" id="list-alumns-goal"></div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Load
-    window.addEventListener("load", (event) => {
-    });
-
     // Api
-    let registerAlumns = <?!= JSON.stringify(registerAlumns) ?>;
-
-    // Div
-    let loading = document.querySelector(".form__loading");
-    let divCommunicate = document.querySelector(".hide-communicate");
-    let divAbsence = document.querySelector(".hide-absence");
-    let qrTab = document.querySelector("#nav-qr-tab");
-    let fileLabel = document.querySelector("#msg-input");
-
-    // Field Form
-    let alumn = document.querySelector("#id_alumn");
-    let communicate = document.querySelector("#communicate");
-    let absence = document.querySelector("#absence");
-    let observation = document.querySelector("#observation");
-    let formAction = document.querySelector("#action");
-    let btnEnviar = document.querySelector("#btn-enviar");
-
-    // Field Attendance
-    let dniAttendance = document.querySelector("#dni");
-    let typeAttendanceQr = document.querySelector("#type-attendance-qr");
-    let typeAttendanceVirtual = document.querySelector("#type-attendance-virtual");
-    let typeAttendanceDni = document.querySelector("#type-attendance-dni");
-    let weekList = document.querySelector("#week-list");
-    let weekQr = document.querySelector("#week-qr");
-    let weekVirtual = document.querySelector("#week-virtual");
-    let weekDni = document.querySelector("#week-dni");
-
-    document.querySelector('#csvFile').addEventListener('change', function (e) {
-      let name = document.getElementById("csvFile").files[0].name;
-      let nextSibling = e.target.nextElementSibling
-      fileLabel.innerText = name;
-    })
+    let emailTutor = <?!= JSON.stringify(email) ?>;
+    let apiTutor = <?!= JSON.stringify(apiTutor) ?>;
+    let show = <?!= show ?>;
+    let apiAlumns = [];
+    let attendanceToday;
     
-    // Create List Week
-    for (let j = 1; j <= 52; j++) {
-      let opt1 = document.createElement('option');
-      let opt2 = document.createElement('option');
-      let opt3 = document.createElement('option');
-      let opt4 = document.createElement('option');
+    let containers = document.querySelectorAll(".container");
+    let loading = document.querySelector(".loading");
 
-      opt1.value = j;
-      opt1.innerHTML = j;
-      opt2.value = j;
-      opt2.innerHTML = j;
-      opt3.value = j;
-      opt3.innerHTML = j;
-      opt4.value = j;
-      opt4.innerHTML = j;
+    // Validate Data show
+    if (show == true) {
+      // Div
+      let loadings = document.querySelectorAll(".form__loading");
+      //let loading = document.querySelector(".form__loading");
+      let divCommunicate = document.querySelector(".hide-communicate");
+      let divAbsence = document.querySelector(".hide-absence");
+      let qrTab = document.querySelector("#nav-qr-tab");
+      let fileLabel = document.querySelector("#msg-input");
+      let listAttendance = document.querySelector('#list-attendance');
+      let listAlumnsGoal = document.querySelector('#list-alumns-goal');
 
-      weekList.appendChild(opt1);
-      weekQr.appendChild(opt2);
-      weekVirtual.appendChild(opt3);
-      weekDni.appendChild(opt4);
-    }
+      // Field Form
+      let tutorCycle = document.querySelector("#tutor-cycle");
+      //let tutorModality = document.querySelector("#tutor-modality");
+      //let tutorBuilding = document.querySelector("#tutor-building");
+      //let tutorClassroom = document.querySelector("#tutor-classroom");
 
-   // Create List Alumn Form
-    let alumns = document.querySelector('#id_alumn');
-    for (const [index, value] of registerAlumns.entries()) {
-      const opt = document.createElement('option');
-      opt.value = value[0];
-      opt.innerHTML = `${value[2]} ${value[3]}`;
-      alumns.appendChild(opt);
-    }
+      let selectAlumns = document.querySelector('#id_alumn');
+      let fileInput = document.querySelector('#csvFile');
+      let alumn = document.querySelector("#id_alumn");
+      let communicate = document.querySelector("#communicate");
+      let absence = document.querySelector("#absence");
+      let observation = document.querySelector("#observation");
+      let formAction = document.querySelector("#action");
+      let btnEnviar = document.querySelector("#btn-enviar");
 
-    // Create List Alumn Attendance
-    let listAttendance = document.querySelector('#list-attendance');
-    for (let [index, value] of registerAlumns.entries()) {
-      index = index + 1;
+      // Field Attendance
+      let dniAttendance = document.querySelector("#dni");
+      let typeAttendanceQr = document.querySelector("#type-attendance-qr");
+      let typeAttendanceVirtual = document.querySelector("#type-attendance-virtual");
+      let typeAttendanceDni = document.querySelector("#type-attendance-dni");
+      let weekList = document.querySelector("#week-list");
+      let weekQr = document.querySelector("#week-qr");
+      let weekVirtual = document.querySelector("#week-virtual");
+      let weekDni = document.querySelector("#week-dni");
+      let weekGoal = document.querySelector("#week-goal");
 
-      const listDiv = document.createElement('div');
-      const checkDiv = document.createElement('div');
-      const checkLabel = document.createElement('label');
-      const checkInput1 = document.createElement('input');
-      const checkInput2 = document.createElement('input');
-      const checkInput3 = document.createElement('input');
-
-      listDiv.className = "d-flex justify-content-between pl-0 list-item";
-      checkDiv.className = "form-check-group d-flex justify-content-between";
-
-      checkInput1.classList.add("form-check-input");
-      checkInput2.classList.add("form-check-input");
-      checkInput3.classList.add("form-check-input");
-      checkLabel.classList.add("form-check-label");
-
-      checkInput1.type = "radio";
-      checkInput2.type = "radio";
-      checkInput3.type = "radio";
-
-      checkInput1.value = value[0] + ",A";
-      checkInput2.value = value[0] + ",T";
-      checkInput3.value = value[0] + ",F";
-
-      checkInput1.id = value[0] + ",A";
-      checkInput2.id = value[0] + ",T";
-      checkInput3.id = value[0] + ",F";
-
-      checkInput3.checked = true;
-
-      checkInput1.name = "alumn" + index;
-      checkInput2.name = "alumn" + index;
-      checkInput3.name = "alumn" + index;
+      // Create List Tutor cycle
+      for (const [index, value] of apiTutor.entries()) {
+        const opt = document.createElement('option');
+        opt.value = value[3];
+        opt.innerHTML = `${value[3]}`;
+        tutorCycle.appendChild(opt);
+        //tutorModality.value = value[4];
+        //tutorBuilding.value = value[5];
+        //tutorClassroom.value = value[6];
+      }
       
-      if(index <= 9 ){
-        index = "0" + index;
+      // Load Web
+      window.addEventListener("load", (event) => {
+        loadAlumns()
+      });
+
+      // Load Alumns
+      function loadAlumns(){
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        // Get Alumns by cycle
+        google.script.run.withSuccessHandler(result => {
+          //console.log(result)
+          apiAlumns = result[0];
+          attendanceToday = result[1];
+          createAlumns(apiAlumns,attendanceToday)
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }).withFailureHandler(err =>{
+          console.log("Error");
+        }).getAlumnsByCycle(emailTutor, tutorCycle.value);
       }
 
-      checkLabel.innerHTML = `${index}. ${value[2]} ${value[3]}`;
-      checkLabel.htmlFor = value[0];
+      // Create Alumns
+      function createAlumns(apiAlumns,attendanceToday){
+        //if (list.hasChildNodes()) {
+        //  list.removeChild(list.children[0]);
+        //}
+        //if(listAttendance.children.length >= 1){ 
+        //}
+        while (listAttendance.hasChildNodes()) {
+          listAttendance.removeChild(listAttendance.firstChild);
+        }
+        while (selectAlumns.hasChildNodes()) {
+          selectAlumns.removeChild(selectAlumns.firstChild);
+        }
+        while (listAlumnsGoal.hasChildNodes()) {
+          listAlumnsGoal.removeChild(listAlumnsGoal.firstChild);
+        }
 
-      listDiv.appendChild(checkLabel);
-      checkDiv.appendChild(checkInput1);
-      checkDiv.appendChild(checkInput2);
-      checkDiv.appendChild(checkInput3);
-      listDiv.appendChild(checkDiv);
-      listAttendance.appendChild(listDiv);
-    }
-    
-    // Modal Attendance
-    function attendanceModal() {
-      $("#assistance").modal("show");
-    }
-    // Modal Call
-    function callModal() {
-      formAction.value = "calls";
-      document.querySelector("#formData").reset();
-      divCommunicate.style.display = 'block';
-      divAbsence.style.display = 'block';
-      communicate.required = true;
-      absence.required = true;
-      document.querySelector("#tituloForm").innerHTML = "Registrar llamada";
-      $("#conversation").modal("show");
-    }
-    // Modal Conversation
-    function conversationModal() {
-      formAction.value = "conversations";
-      //document.querySelector("#action").value = "conversations";
-      //divAbsence.style.display = 'none';
-      //absence.required = false;
-      document.querySelector("#formData").reset();
-      divCommunicate.style.display = 'none';
-      communicate.required = false;
-      document.querySelector("#tituloForm").innerHTML = "Registrar Conversación";
-      $("#conversation").modal("show");
-    }
+        // Create List Alumn Form
+        for (const [index, value] of apiAlumns.entries()) {
+          const opt = document.createElement('option');
+          opt.value = value[0];
+          opt.innerHTML = `${value[1]} ${value[2]}`;
+          selectAlumns.appendChild(opt);
+        }
 
-    // Send Data Forms
-    formData.addEventListener("submit", sendDataForm);
-    async function sendDataForm(e) {
-      e.preventDefault();
-      loading.classList.add("form__loading--active");
-      let formAlumn = alumn.value;
-      let formCommunicate = communicate.value;
-      let formAbsence = absence.value;
-      let formObservation = observation.value;
-      let formActionS = formAction.value;
+        // Create List Alumn Attendance
+        for (let [index, value] of apiAlumns.entries()) {
+          index = index + 1;
 
-      google.script.run.sendform(formAlumn,formCommunicate,formAbsence,formObservation,formActionS);
+          const listDiv = document.createElement('div');
+          const checkDiv = document.createElement('div');
+          const checkLabel = document.createElement('label');
+          const checkInput1 = document.createElement('input');
+          const checkInput2 = document.createElement('input');
+          const checkInput3 = document.createElement('input');
 
-      loading.classList.remove("form__loading--active");
-      $("#conversation").modal("hide");
-      document.querySelector("#formData").reset();
-      Swal.fire({
-        icon: 'success',
-        title: 'Registrado',
-        text: 'El registro fue guardado correctamente!',
-        showConfirmButton: false,
-        timer: 3000
+          listDiv.className = "d-flex justify-content-between pl-0 list-item";
+          checkDiv.className = "form-check-group d-flex justify-content-between";
+
+          checkInput1.classList.add("form-check-input");
+          checkInput2.classList.add("form-check-input");
+          checkInput3.classList.add("form-check-input");
+          checkLabel.classList.add("form-check-label");
+
+          checkInput1.type = "radio";
+          checkInput2.type = "radio";
+          checkInput3.type = "radio";
+
+          checkInput1.value = value[0] + ",A";
+          checkInput2.value = value[0] + ",T";
+          checkInput3.value = value[0] + ",F";
+
+          checkInput1.id = value[0] + ",A";
+          checkInput2.id = value[0] + ",T";
+          checkInput3.id = value[0] + ",F";
+
+          if(attendanceToday == "date"){
+            if(value[3] == "A"){
+              checkInput1.checked = true;
+            }else if(value[3] == "T"){
+              checkInput2.checked = true;
+            }else{
+              checkInput3.checked = true;
+            }
+          }else{
+            checkInput3.checked = true;
+          }
+
+
+          checkInput1.name = "alumn" + index;
+          checkInput2.name = "alumn" + index;
+          checkInput3.name = "alumn" + index;
+          
+          if(index <= 9 ){
+            index = "0" + index;
+          }
+
+          checkLabel.innerHTML = `${index}. ${value[1]} ${value[2]}`;
+          checkLabel.htmlFor = value[0];
+
+          listDiv.appendChild(checkLabel);
+          checkDiv.appendChild(checkInput1);
+          checkDiv.appendChild(checkInput2);
+          checkDiv.appendChild(checkInput3);
+          listDiv.appendChild(checkDiv);
+          listAttendance.appendChild(listDiv);
+        }
+
+        
+        if(attendanceToday == "date"){
+          let alumSelected = "1";
+          for(let item of apiAlumns){
+            if(item[4] != ""){
+              alumSelected = item[4];
+            }
+          }
+
+          //console.log(alumSelected)
+          weekList.getElementsByTagName('option')[alumSelected].selected = 'selected';
+        }else{
+          weekList.getElementsByTagName('option')[0].selected = 'selected';
+        }
+
+        // Create List Alumn Goal
+        for (let [j, item] of apiAlumns.entries()) {
+          j = j + 1;
+
+          let listDiv = document.createElement('div');
+          let checkDiv = document.createElement('div');
+          let checkLabel = document.createElement('label');
+          let checkInput1 = document.createElement('input');
+
+          listDiv.className = "d-flex justify-content-between pl-0 list-item";
+          checkDiv.className = "input-group2";
+
+          checkInput1.classList.add("form-control");
+          checkLabel.classList.add("form-label");
+
+          checkInput1.type = "text";
+          checkInput1.id = item[0];
+          
+          if(j <= 9 ){
+            j = "0" + j;
+          }
+
+          checkLabel.innerHTML = `${j}. ${item[1]} ${item[2]}`;
+          checkLabel.htmlFor = item[0];
+
+          listDiv.appendChild(checkLabel);
+          checkDiv.appendChild(checkInput1);
+          listDiv.appendChild(checkDiv);
+          listAlumnsGoal.appendChild(listDiv);
+        }
+      }
+      
+      // Create List Week
+      for (let j = 1; j <= 52; j++) {
+        let opt1 = document.createElement('option');
+        let opt2 = document.createElement('option');
+        let opt3 = document.createElement('option');
+        let opt4 = document.createElement('option');
+        let opt5 = document.createElement('option');
+
+        opt1.value = j;
+        opt1.innerHTML = j;
+        opt2.value = j;
+        opt2.innerHTML = j;
+        opt3.value = j;
+        opt3.innerHTML = j;
+        opt4.value = j;
+        opt4.innerHTML = j;
+        opt5.value = j;
+        opt5.innerHTML = j;
+
+        weekList.appendChild(opt1);
+        weekQr.appendChild(opt2);
+        weekVirtual.appendChild(opt3);
+        weekDni.appendChild(opt4);
+        weekGoal.appendChild(opt5);
+      }
+
+      // Change Cycle List
+      tutorCycle.addEventListener('change', function (e) {
+        //apiTutor.forEach((value) =>{
+        //  if(value[3] == tutorCycle.value){
+        //    tutorModality.value = value[4];
+        //    tutorBuilding.value = value[5];
+        //    tutorClassroom.value = value[6];
+        //  }
+        //})
+
+        loadAlumns()
+        //weekList.getElementsByTagName('option')[1].selected = 'selected';
       })
-    }
 
-    // Send Data Attendance Checkbox
-    formAttendanceList.addEventListener("submit", sendDataAttendanceList);
-    async function sendDataAttendanceList(e) {
-      e.preventDefault();
-      loading.classList.add("form__loading--active");
-      let aWeek = weekList.value;
-      let aType = "check";
+      // Change File State
+      fileInput.addEventListener('change', function (e) {
+        let name = document.getElementById("csvFile").files[0].name;
+        let nextSibling = e.target.nextElementSibling
+        fileLabel.innerText = name;
+      })
+      
+      // QR Select
+      weekQr.addEventListener("change", activeCam);
+      function activeCam(){
+        let w = weekQr.value;
 
-      let data = [];
-      let checkboxes = document.querySelectorAll('input[type=radio]:checked')
-      for (let i = 0; i < checkboxes.length; i++) {
-        data.push(checkboxes[i].value)
+        if(w != ""){
+          setTimeout(function(){
+            html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render(onScanSuccess);
+          },200);
+        }else{
+          html5QrcodeScanner.clear();
+        }
+      }
+      
+      // Modal Attendance
+      function attendanceModal() {
+        $("#assistance").modal("show");
+      }
+      // Modal Call
+      function callModal() {
+        formAction.value = "calls";
+        document.querySelector("#formData").reset();
+        divCommunicate.style.display = 'block';
+        divAbsence.style.display = 'block';
+        communicate.required = true;
+        absence.required = true;
+        document.querySelector("#tituloForm").innerHTML = "Registrar Llamada";
+        $("#conversation").modal("show");
+      }
+      // Modal Conversation
+      function conversationModal() {
+        formAction.value = "conversations";
+        //document.querySelector("#action").value = "conversations";
+        //divAbsence.style.display = 'none';
+        //absence.required = false;
+        document.querySelector("#formData").reset();
+        divCommunicate.style.display = 'none';
+        communicate.required = false;
+        document.querySelector("#tituloForm").innerHTML = "Registrar Conversación";
+        $("#conversation").modal("show");
+      }
+      // Modal Goal
+      function goalModal() {
+        //document.querySelector("#action").value = "conversations";
+        //divAbsence.style.display = 'none';
+        //absence.required = false;
+        $("#goal").modal("show");
       }
 
-      google.script.run.withSuccessHandler(result => {
+      // Send Data Forms
+      formData.addEventListener("submit", sendDataForm);
+      async function sendDataForm(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let fAlumn = alumn.value;
+        let fCommunicate = communicate.value;
+        let fAbsence = absence.value;
+        let fObservation = observation.value;
+        let fAction = formAction.value;
+        let fcycle = tutorCycle.value;
+
+        google.script.run.sendform(fAlumn,fCommunicate,fAbsence,fObservation,fAction,fcycle);
+
+        for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        $("#conversation").modal("hide");
+        document.querySelector("#formData").reset();
         Swal.fire({
           icon: 'success',
-          title: 'Exito',
-          text: 'La asistencia fue guardada correctamente!',
+          title: 'Registrado',
+          text: 'El registro fue guardado correctamente!',
           showConfirmButton: false,
           timer: 3000
         })
-        $("#assistance").modal("hide");
-        loading.classList.remove("form__loading--active");
-      }).withFailureHandler(err =>{
-        console.log("Error");
-        loading.classList.remove("form__loading--active");
-      }).senddataall(data, aType, aWeek);
-    }
+      }
 
-    // Send Data Attendance File
-    formAttendanceVirtual.addEventListener("submit", sendDataAttendanceVirtual);
-    async function sendDataAttendanceVirtual(e) {
-      e.preventDefault();
-      loading.classList.add("form__loading--active");
-      let input = csvFile.files[0];
-      let reader = new FileReader();
-      let aWeek = weekVirtual.value;
-      let aType = typeAttendanceVirtual.value;
+      // Send Data Attendance Checkbox
+      formAttendanceList.addEventListener("submit", sendDataAttendanceList);
+      async function sendDataAttendanceList(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let aWeek = weekList.value;
+        let aType = "check";
 
-      reader.readAsText(input);
-      let result = [];
-      let data;
-
-      reader.onload = function (e) {
-        let text = e.target.result;
-        data = csvToArray(text);
-
-        if(data == "no"){
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'el formato no es valido!',
-            showConfirmButton: false,
-            timer: 2000
-          })
-          loading.classList.remove("form__loading--active");
-        }else{
-          google.script.run.withSuccessHandler(result => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Exito',
-              text: 'La asistencia fue guardada correctamente!',
-              showConfirmButton: false,
-              timer: 3000
-            })
-            $("#assistance").modal("hide");
-            loading.classList.remove("form__loading--active");
-            formAttendanceVirtual.reset();
-            fileLabel.innerText = "";
-          }).withFailureHandler(err =>{
-            console.log("Error");
-            loading.classList.remove("form__loading--active");
-          }).senddataall(data, aType, aWeek);
+        let data = [];
+        let checkboxes = document.querySelectorAll('input[type=radio]:checked')
+        for (let i = 0; i < checkboxes.length; i++) {
+          data.push(checkboxes[i].value)
         }
-      };
-    }
 
-    // Send Data Attendance Dni
-    formAttendanceDni.addEventListener("submit", sendDataAttendanceDni);
-    async function sendDataAttendanceDni(e) {
-      e.preventDefault();
-      loading.classList.add("form__loading--active");
-      let aDni = dniAttendance.value;
-      let aType = typeAttendanceDni.value;
-      let aWeek = weekDni.value;
-
-      console.log(aDni, aType, aWeek)
-
-      google.script.run.withSuccessHandler(result => {
-        if(result == "ok"){
-          // Success
+        google.script.run.withSuccessHandler(result => {
           Swal.fire({
             icon: 'success',
             title: 'Exito',
-            text: 'Las Asistencia fue guardada correctamente!',
+            text: 'La asistencia fue guardada correctamente!',
             showConfirmButton: false,
-            timer: 1000
+            timer: 3000
+          })
+          //$("#assistance").modal("hide");
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+          //formAttendanceList.reset();
+        }).withFailureHandler(err =>{
+          console.log("Error");
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }).senddataall(data, aType, aWeek, tutorCycle.value);
+      }
+
+      // Send Data Attendance File
+      formAttendanceVirtual.addEventListener("submit", sendDataAttendanceVirtual);
+      async function sendDataAttendanceVirtual(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let input = csvFile.files[0];
+        let reader = new FileReader();
+        let aWeek = weekVirtual.value;
+        let aType = typeAttendanceVirtual.value;
+
+        reader.readAsText(input);
+        let result = [];
+        let data;
+
+        reader.onload = function (e) {
+          let text = e.target.result;
+          data = csvToArray(text);
+
+          if(data == "no"){
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'el formato no es valido!',
+              showConfirmButton: false,
+              timer: 2000
+            })
+            for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+          }else{
+            google.script.run.withSuccessHandler(result => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Exito',
+                text: 'La asistencia fue guardada correctamente!',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              $("#assistance").modal("hide");
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+              formAttendanceVirtual.reset();
+              fileLabel.innerText = "";
+            }).withFailureHandler(err =>{
+              console.log("Error");
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }).senddataall(data, aType, aWeek, tutorCycle.value);
+          }
+        };
+      }
+
+      // Send Data Goals
+      formGoal.addEventListener("submit", sendDataGoal);
+      async function sendDataGoal(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let aWeek = weekGoal.value;
+
+        let data = [];
+        let inputsText = document.querySelectorAll('input[type=text]')
+        for (let i = 0; i < inputsText.length; i++) {
+          let alumnData = inputsText[i].id + ',' + inputsText[i].value
+          data.push(alumnData)
+        }
+
+        google.script.run.withSuccessHandler(result => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Exito',
+            text: 'Las metas fueron guardadas correctamente!',
+            showConfirmButton: false,
+            timer: 3000
+          })
+          $("#goal").modal("hide");
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+          formAttendanceList.reset();
+        }).withFailureHandler(err =>{
+          console.log("Error");
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }).senddatagoal(data, aWeek, tutorCycle.value);
+      }
+
+      // CSV To Array
+      function csvToArray(strCsv, delimiter = ",,,") {
+        if(strCsv.includes('(plazo 1min)"",,,"')){
+          let strExtract = strCsv.split('(plazo 1min)"",,,"');
+          let str = strExtract[1];
+
+          const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+          const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+          const arr = rows.map(function (row) {
+            const values = row.split(delimiter);
+            const el = headers.reduce(function (object, header, index) {
+              object[header] = values[index];
+              return object;
+            }, {});
+            return el;
           });
-          loading.classList.remove("form__loading--active");
-          formAttendanceDni.reset();
+
+          let listDNI = [];
+          arr.forEach((value, index) => {
+            let valueArray = Object.values(value) + "";
+            let extract = valueArray.split(',');
+
+            if(extract[2] != undefined){
+              if (extract[2].includes('@')) { 
+                let dni = extract[2].split('@');
+                listDNI.push(dni[0])
+              }
+            }
+          });
+
+          return listDNI;
+        }else{
+          let msg = "no"
+          return msg;
+        }
+      }
+
+      // Send Data Attendance Dni
+      formAttendanceDni.addEventListener("submit", sendDataAttendanceDni);
+      async function sendDataAttendanceDni(e) {
+        e.preventDefault();
+        let digitsDni = dniAttendance.value;
+        if(digitsDni.length == 8){
+          for (const loading of loadings) {loading.classList.add("form__loading--active");}
+          let aDni = dniAttendance.value;
+          let aType = typeAttendanceDni.value;
+          let aWeek = weekDni.value;
+          let aMode = "dni";
+
+          console.log(aDni, aType, aWeek)
+
+          google.script.run.withSuccessHandler(result => {
+            console.log(result)
+            if(result == "ok"){
+              // Success
+              Swal.fire({
+                icon: 'success',
+                title: 'Exito',
+                text: 'Las Asistencia fue guardada correctamente!',
+                showConfirmButton: false,
+                timer: 2000
+              });
+              loadAlumns()
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+              formAttendanceDni.reset();
+            }else if(result == "no_exist"){
+              // Error
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El Usuario no puede ser registrado!',
+                showConfirmButton: false,
+                timer: 2000
+              });
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }else{
+              // Error
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La Asistencia ya fue registrada!',
+                showConfirmButton: false,
+                timer: 2000
+              });
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }
+          }).withFailureHandler(e =>{
+            console.log("Error");
+          }).senddataone(aDni,aType,aWeek,tutorCycle.value,aMode);
         }else{
           // Error
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'el usuario ya fue registrado!',
+            text: 'Ingresar un DNI valido',
             showConfirmButton: false,
-            timer: 1000
+            timer: 2000
           });
-          loading.classList.remove("form__loading--active");
+          dniAttendance.focus();
         }
-      }).withFailureHandler(e =>{
-        console.log("Error");
-      }).senddataone(aDni,aType,aWeek);
-    }
+      }
 
-    // CSV To Array
-    function csvToArray(strCsv, delimiter = ",,,") {
-      if(strCsv.includes('(plazo 1min)"",,,"')){
-        let strExtract = strCsv.split('(plazo 1min)"",,,"');
-        let str = strExtract[1];
+      // Send Data Attendance QR
+      let html5QrcodeScanner;
+      let resultContainer = document.getElementById('qr-reader-results');
+      let lastResult, countResults = 0;
+      async function onScanSuccess(decodedText, decodedResult) {
 
-        const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
-        const rows = str.slice(str.indexOf("\n") + 1).split("\n");
-        const arr = rows.map(function (row) {
-          const values = row.split(delimiter);
-          const el = headers.reduce(function (object, header, index) {
-            object[header] = values[index];
-            return object;
-          }, {});
-          return el;
-        });
-
-        let listDNI = [];
-        arr.forEach((value, index) => {
-          let valueArray = Object.values(value) + "";
-          let extract = valueArray.split(',');
-
-          if(extract[2] != undefined){
-            if (extract[2].includes('@')) { 
-              let dni = extract[2].split('@');
-              listDNI.push(dni[0])
+        if (decodedText !== lastResult) {
+          ++countResults;
+          lastResult = decodedText;
+          //console.log(`Scan result ${decodedText}`, decodedResult);
+          for (const loading of loadings) {loading.classList.add("form__loading--active");}
+          let atype = typeAttendanceQr.value;
+          let aDni = decodedText.substr(-8);
+          let aWeek = weekQr.value;
+          let aMode = "qr";
+        
+          google.script.run.withSuccessHandler(result => {
+            if(result == "ok"){
+              // Success
+              Swal.fire({
+                icon: 'success',
+                title: 'Exito',
+                text: 'Las Asistencia fue guardada correctamente!',
+                showConfirmButton: false,
+                timer: 1000
+              });
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }else if(result == "no_exist"){
+              // Error
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El Usuario no puede ser registrado!',
+                showConfirmButton: false,
+                timer: 2000
+              });
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }else{
+              // Error
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La Asistencia ya fue registrada!',
+                showConfirmButton: false,
+                timer: 1000
+              });
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
             }
-          }
-        });
-
-        return listDNI;
-      }else{
-        let msg = "no"
-        return msg;
+          }).withFailureHandler(e =>{
+            console.log("Error");
+          }).senddataone(aDni,atype,aWeek,tutorCycle.value,aMode);
+          await waitme()
+        }
       }
-    }
-
-    // QR Select
-    weekQr.addEventListener("change", activeCam);
-    function activeCam(){
-      let w = weekQr.value;
-
-      if(w != ""){
-        setTimeout(function(){
-          html5QrcodeScanner = new Html5QrcodeScanner(
-          "qr-reader", { fps: 10, qrbox: 250 });
-          html5QrcodeScanner.render(onScanSuccess);
-        },200);
-      }else{
-        html5QrcodeScanner.clear();
-      }
-    }
-
-    // Send Data Attendance QR
-    let html5QrcodeScanner;
-    let resultContainer = document.getElementById('qr-reader-results');
-    let lastResult, countResults = 0;
-    async function onScanSuccess(decodedText, decodedResult) {
-
-      if (decodedText !== lastResult) {
-        ++countResults;
-        lastResult = decodedText;
-        //console.log(`Scan result ${decodedText}`, decodedResult);
-        loading.classList.add("form__loading--active");
-        let atype = typeAttendanceQr.value;
-        let aDni = decodedText.substr(-8);
-        let aWeek = weekQr.value;
       
-        google.script.run.withSuccessHandler(result => {
-          if(result == "ok"){
-            // Success
-            Swal.fire({
-              icon: 'success',
-              title: 'Exito',
-              text: 'Las Asistencia fue guardada correctamente!',
-              showConfirmButton: false,
-              timer: 1000
-            });
-            loading.classList.remove("form__loading--active");
-          }else{
-            // Error
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'el usuario ya fue registrado!',
-              showConfirmButton: false,
-              timer: 1000
-            });
-            loading.classList.remove("form__loading--active");
-          }
-        }).withFailureHandler(e =>{
-          console.log("Error");
-        }).senddataone(aDni,atype,aWeek);
-        await waitme()
+      function waitme(){
+        promise1=new Promise(function(resolve){
+          setTimeout(function(){
+            resolve('ok');
+            
+            //html5QrCode.stop()
+          },1000)
+        })
+        return promise1;
       }
+      window.addEventListener('beforeunload', function (e) {
+        // Cancel the event
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = '3';
+      });
+    } else {
+      // Show Loading & Hide Container
+      loading.classList.add("loading--active");
+      for (const container of containers) {container.parentNode.removeChild(container);}
+      
     }
-    
-    function waitme(){
-      promise1=new Promise(function(resolve){
-        setTimeout(function(){
-          resolve('ok');
-          
-          //html5QrCode.stop()
-        },1000)
-      })
-      return promise1;
-    }
-    window.addEventListener('beforeunload', function (e) {
-      // Cancel the event
-      e.preventDefault();
-      // Chrome requires returnValue to be set
-      e.returnValue = '3';
-    });
   </script>
 
 </body>
