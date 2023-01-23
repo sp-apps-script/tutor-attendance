@@ -7,8 +7,8 @@ let writeDisposition = 'WRITE_APPEND';
 let has_header = false;
 let schema_bq = 'no_automatic';
 let today = new Date();
-//let userEmail = Session.getActiveUser().getEmail();
-let userEmail = "dherrera@vonex.edu.pe";
+let userEmail = Session.getActiveUser().getEmail();
+//let userEmail = "dherrera@vonex.edu.pe";
 
 let listSede = ["LIMA CENTRO","SJL","LIMA NORTE","HCO - DOS DE MAYO","HCO - CRESPO Y CASTILLO"];
 let listModality = ["PRESENCIAL","VIRTUAL"];
@@ -126,7 +126,7 @@ function senddataall(data,type,week,cycle) {
   let tableId = 'alumn_attendance';
   
   //let alumnValid = getAlumnsByTutorDni(userEmail,cycle,data[0]);
-  let cantAttendace = getAlumnsByCycleTable(cycle, userEmail, getDate_(), tableId);
+  let cantAttendace = getAlumnsByCycleTable(cycle, userEmail, getDate_(), tableId, week);
   
   let newRow = [];
   let range = [];
@@ -163,7 +163,7 @@ function senddatagoal(data,week,cycle) {
   let headerAttendance = ["id_alumn", "tutor_email", "date", "time", "week", "goal","cycle"];
   let tableId = 'alumn_goal';
 
-  let cantAttendace = getAlumnsByCycleTable(cycle, userEmail, getDate_(),tableId);
+  let cantAttendace = getAlumnsByCycleTable(cycle, userEmail, getDate_(),tableId,week);
   
   let newRow = [];
   let range = [];
@@ -190,40 +190,57 @@ function senddatagoal(data,week,cycle) {
 
 // Get Alumns by Cycle
 function getAlumnsByCycle(tutor,cycle){
-  let data = [];
-  let msg;
+  let msgAttendance;
+  let msgGoal;
   let header = [];
 
   let attendanceToday = getAlumnsByTutorAttendance(tutor,cycle,getDate_());
+  let weekGoal = getAlumnsByTutorGoal(tutor,cycle);
   let alumns = getAlumnsByTutor(tutor,cycle);
 
   alumns.forEach((item) =>{
     header.push(item[0])
   })
-
+  // Attendance
   if (attendanceToday.length >= 1){
-    for (let [index, value] of alumns.entries()) {
+    for (value of alumns) {
       let dni = value[0]
 
-      for (let [i, item] of attendanceToday.entries()) {
+      for (item of attendanceToday) {
         if(item[0] == dni){
           value[3] = item[3];
           value[4] = item[4];
         }
       }
       if(header.includes(dni)){
-        data.push(value)
       }
     }
-    
-    //data = [...attendanceToday];
-    msg = "date";
+    msgAttendance = "attendance_true";
   } else{
-    data = [...alumns];
-    msg = "no_date";
+    msgAttendance = "attendance_false";
+  }
+
+  // Goal
+  if (weekGoal.length >= 1){
+    for (value of alumns) {
+      let dni = value[0]
+
+      for (item of weekGoal) {
+        if(item[0] == dni){
+          value[5] = item[3];
+          value[6] = item[4];
+        }
+      }
+      if(header.includes(dni)){
+      }
+    }
+    msgGoal = "goal_true";
+  } else{
+    //dataGoal = [...alumns];
+    msgGoal = "goal_false";
   }
   
-  let newData = [data,msg]
+  let newData = [alumns,msgAttendance,msgGoal]
   return newData;
 }
 // Get Tutor by Email
@@ -309,11 +326,8 @@ function getAlumns() {
 // Get Alumns by Tutor
 function getAlumnsByTutor(tutor,cycle) {
   let tableId = "alumn";
-  let select1 = "SELECT DISTINCT dni_alumno,apellido_alumno,nombre_alumno,fecha_inicio_ciclo,nombre_ciclo,codigo_ciclo,modalidad,sede,aula,email_tutor ";
-  let select2 = "SELECT DISTINCT dni_alumno,apellido_alumno,nombre_alumno";
-
   let request = {
-    query: 'SELECT DISTINCT dni_alumno,apellido_alumno,nombre_alumno,concat("") as state, concat("") as week ' +
+    query: 'SELECT DISTINCT dni_alumno,apellido_alumno,nombre_alumno,concat("") as state, concat("") as weeka,concat("") as goal, concat("") as weekg ' +
       'FROM '+ projectId + '.' + datasetId +'.'+ tableId + 
       ' WHERE email_tutor = "'+ tutor +'" AND codigo_final = "'+ cycle +'"'+
       'ORDER BY apellido_alumno;',
@@ -360,6 +374,50 @@ function getAlumnsByTutorAttendance(tutor,cycle,date) {
       ' ON talu.dni_alumno = tatt.id_alumn' +
       ' WHERE email_tutor = "'+ tutor +'" AND codigo_final = "'+ cycle +'" AND date = '+ date +' '+
       'ORDER BY apellido_alumno;',
+    useLegacySql: false
+  };
+  let queryResults = BigQuery.Jobs.query(request, projectId);
+
+  if (queryResults.totalRows == 0) {
+    let data = [];
+    return data;
+  } else {
+    const jobId = queryResults.jobReference.jobId;
+    let rows = queryResults.rows;
+    while (queryResults.pageToken) {
+      queryResults = BigQuery.Jobs.getQueryResults(projectId, jobId, {
+        pageToken: queryResults.pageToken
+      });
+      rows = rows.concat(queryResults.rows);
+    }
+    
+    // Append the results.
+    let data = new Array(rows.length);
+    for (let i = 0; i < rows.length; i++) {
+      const cols = rows[i].f;
+      data[i] = new Array(cols.length);
+      for (let j = 0; j < cols.length; j++) {
+        data[i][j] = cols[j].v;
+      }
+    }
+
+    return data;
+    //Logger.log(data);
+  }
+}
+// Get Alumns by Tutor & Goal
+function getAlumnsByTutorGoal(tutor,cycle) {
+  let tableId = "alumn_goal";
+  let tableInner = "alumn";
+
+  let request = {
+    query: 'SELECT DISTINCT dni_alumno,apellido_alumno,nombre_alumno,goal,week ' +
+      'FROM '+ projectId + '.' + datasetId +'.'+ tableId + ' tgoa ' + 
+      'INNER JOIN ' + projectId + '.' + datasetId +'.'+ tableInner + ' talu' +
+      ' ON talu.dni_alumno = tgoa.id_alumn' +
+      ' WHERE email_tutor = "'+ tutor +'" AND codigo_final = "'+ cycle +'" '+
+      ' AND week = (SELECT week FROM '+ projectId + '.' + datasetId +'.'+ tableId + ' WHERE tutor_email = "'+ tutor +'" AND cycle = "'+ cycle +'" ORDER BY week DESC LIMIT 1 ) '+
+      'ORDER BY week DESC;',
     useLegacySql: false
   };
   let queryResults = BigQuery.Jobs.query(request, projectId);
@@ -471,8 +529,7 @@ function getAlumnsByTutorDni(tutor, cycle, dni) {
   }
 }
 // Get Alumns by Cycle
-function getAlumnsByCycleTable(cycle, email, date, tableId){
-  //let tableId = "alumn_attendance";
+function getAlumnsByCycleTable(cycle, email, date, tableId, week){
   let request = {
     query: 'SELECT * ' +
       'FROM '+ projectId +'.'+datasetId +'.'+ tableId + ' ' +
@@ -505,7 +562,7 @@ function getAlumnsByCycleTable(cycle, email, date, tableId){
       }
     }
 
-    deleteAlumnsByCycleTable(cycle,email,date,tableId)
+    deleteAlumnsByCycleTable(cycle,email,date,tableId,week)
 
     return data.length;
     //Logger.log(data.length);
@@ -524,17 +581,26 @@ function deleteAlumnsAttendance() {
   return "ready";
 }
 // Delete Alumns Attendance by Cycle
-function deleteAlumnsByCycleTable(cycle,email,date,tableId) {
+function deleteAlumnsByCycleTable(cycle,email,date,tableId,week) {
   //let tableId = "alumn_attendance";
-  let request = {
-    query: 'DELETE ' +
-      'FROM '+ projectId + '.' + datasetId +'.'+ tableId + 
-      ' WHERE cycle = "' + cycle + '" AND tutor_email = "'+ email +'" AND date = '+ date + ' ;',
-    useLegacySql: false
-  };
-  let queryResults = BigQuery.Jobs.query(request, projectId);
-  //Logger.log(queryResults.totalRow);
-  //return "ready";
+
+  if(tableId == "alumn_attendance"){
+    let request = {
+      query: 'DELETE ' +
+        'FROM '+ projectId + '.' + datasetId +'.'+ tableId + 
+        ' WHERE cycle = "' + cycle + '" AND tutor_email = "'+ email +'" AND date = '+ date + ' ;',
+      useLegacySql: false
+    };
+    let queryResults = BigQuery.Jobs.query(request, projectId);
+  }else{
+    let request = {
+      query: 'DELETE ' +
+        'FROM '+ projectId + '.' + datasetId +'.'+ tableId + 
+        ' WHERE cycle = "' + cycle + '" AND tutor_email = "'+ email +'" AND week = '+ week + ' ;',
+      useLegacySql: false
+    };
+    let queryResults = BigQuery.Jobs.query(request, projectId);
+  }
 }
 
 
