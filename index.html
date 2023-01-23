@@ -190,14 +190,14 @@
         </a>
       </div>
       <div class="col d-flex">
-        <a href="https://datastudio.google.com/reporting/bcaa8d65-d715-4557-9dc5-9b041411a95c/page/p_974zoiva2c/edit"
+        <a href="https://datastudio.google.com/reporting/025c203c-a0b2-48e5-8d2c-a68f0e52935d"
           target="_BLANK" class="border rounded box">
           <h3 class="fw-bold mb-0 fs-5 text-center mt-4">Estadisticas</h3>
           <i class="fa-solid fa-chart-pie mt-5 text-primary d-block m-auto text-center"></i>
         </a>
       </div>
       <div class="col d-flex">
-        <a class="border rounded box">
+        <a href="https://datastudio.google.com/reporting/121214f5-a9ca-4cfc-983b-c928e0b19467" target="_BLANK" class="border rounded box">
           <h3 class="fw-bold mb-0 fs-4 text-center mt-4">Notas</h3>
           <i class="fa-solid fa-list-ol mt-5 text-primary d-block m-auto text-center"></i>
         </a>
@@ -456,6 +456,9 @@
           </div>
 
           <div class="modal-footer">
+            <div class="flex-fill">
+              <button type="button" id="clean-goal" class="btn btn-info" title="Limpiar campos"><i class="fa-solid fa-arrow-rotate-right text-white" style="font-size:20px"></i></button>
+            </div>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             <button type="submit" class="btn btn-primary">Enviar</button>
           </div>
@@ -471,6 +474,7 @@
     let show = <?!= show ?>;
     let apiAlumns = [];
     let attendanceToday;
+    let currentWeek;
     
     let containers = document.querySelectorAll(".container");
     let loading = document.querySelector(".loading");
@@ -486,13 +490,10 @@
       let fileLabel = document.querySelector("#msg-input");
       let listAttendance = document.querySelector('#list-attendance');
       let listAlumnsGoal = document.querySelector('#list-alumns-goal');
+      let cleanGoal = document.querySelector("#clean-goal");
 
       // Field Form
       let tutorCycle = document.querySelector("#tutor-cycle");
-      //let tutorModality = document.querySelector("#tutor-modality");
-      //let tutorBuilding = document.querySelector("#tutor-building");
-      //let tutorClassroom = document.querySelector("#tutor-classroom");
-
       let selectAlumns = document.querySelector('#id_alumn');
       let fileInput = document.querySelector('#csvFile');
       let alumn = document.querySelector("#id_alumn");
@@ -519,14 +520,11 @@
         opt.value = value[3];
         opt.innerHTML = `${value[3]}`;
         tutorCycle.appendChild(opt);
-        //tutorModality.value = value[4];
-        //tutorBuilding.value = value[5];
-        //tutorClassroom.value = value[6];
       }
       
       // Load Web
       window.addEventListener("load", (event) => {
-        loadAlumns()
+        loadAlumns();
       });
 
       // Load Alumns
@@ -534,10 +532,11 @@
         for (const loading of loadings) {loading.classList.add("form__loading--active");}
         // Get Alumns by cycle
         google.script.run.withSuccessHandler(result => {
-          //console.log(result)
           apiAlumns = result[0];
           attendanceToday = result[1];
-          createAlumns(apiAlumns,attendanceToday)
+          goalWeek = result[2];
+          
+          createAlumns(apiAlumns,attendanceToday,goalWeek)
           for (const loading of loadings) {loading.classList.remove("form__loading--active");}
         }).withFailureHandler(err =>{
           console.log("Error");
@@ -545,12 +544,7 @@
       }
 
       // Create Alumns
-      function createAlumns(apiAlumns,attendanceToday){
-        //if (list.hasChildNodes()) {
-        //  list.removeChild(list.children[0]);
-        //}
-        //if(listAttendance.children.length >= 1){ 
-        //}
+      function createAlumns(apiAlumns,attendanceToday,goalWeek){
         while (listAttendance.hasChildNodes()) {
           listAttendance.removeChild(listAttendance.firstChild);
         }
@@ -600,7 +594,7 @@
           checkInput2.id = value[0] + ",T";
           checkInput3.id = value[0] + ",F";
 
-          if(attendanceToday == "date"){
+          if(attendanceToday == "attendance_true"){
             if(value[3] == "A"){
               checkInput1.checked = true;
             }else if(value[3] == "T"){
@@ -632,8 +626,8 @@
           listAttendance.appendChild(listDiv);
         }
 
-        
-        if(attendanceToday == "date"){
+        // Select Attendance
+        if(attendanceToday == "attendance_true"){
           let alumSelected = "1";
           for(let item of apiAlumns){
             if(item[4] != ""){
@@ -641,7 +635,6 @@
             }
           }
 
-          //console.log(alumSelected)
           weekList.getElementsByTagName('option')[alumSelected].selected = 'selected';
         }else{
           weekList.getElementsByTagName('option')[0].selected = 'selected';
@@ -664,6 +657,22 @@
 
           checkInput1.type = "text";
           checkInput1.id = item[0];
+
+          //checkInput1.onkeypress = "validateInputGoal(this)";
+          //checkInput1.setAttribute("onkeypress", "return isNumberKeyDecimal(event)");
+          //checkInput1.setAttribute("onkeypress", "filterFloatInput(this)");
+          checkInput1.setAttribute("onkeypress", "goalValuePress(this)");
+          checkInput1.setAttribute("onkeyup", "validateInputGoal(this)");
+
+          if(goalWeek == "goal_true"){
+            checkInput1.value = item[5];
+          }
+
+          if(j == 1 ){
+            checkInput1.placeholder = "ejemplo: 500"
+          }else if(j == 2 ){
+            checkInput1.placeholder = "ejemplo: 500.20"
+          }
           
           if(j <= 9 ){
             j = "0" + j;
@@ -676,6 +685,22 @@
           checkDiv.appendChild(checkInput1);
           listDiv.appendChild(checkDiv);
           listAlumnsGoal.appendChild(listDiv);
+        }
+
+        // Select Goal
+        if(goalWeek == "goal_true"){
+          let alumSelectedGoal = "1";
+          for(let item of apiAlumns){
+            if(item[6] != ""){
+              alumSelectedGoal = item[6];
+            }
+          }
+
+          weekGoal.getElementsByTagName('option')[alumSelectedGoal].selected = 'selected';
+          currentWeek = alumSelectedGoal;
+        }else{
+          weekGoal.getElementsByTagName('option')[0].selected = 'selected';
+          currentWeek = 1;
         }
       }
       
@@ -707,14 +732,6 @@
 
       // Change Cycle List
       tutorCycle.addEventListener('change', function (e) {
-        //apiTutor.forEach((value) =>{
-        //  if(value[3] == tutorCycle.value){
-        //    tutorModality.value = value[4];
-        //    tutorBuilding.value = value[5];
-        //    tutorClassroom.value = value[6];
-        //  }
-        //})
-
         loadAlumns()
         //weekList.getElementsByTagName('option')[1].selected = 'selected';
       })
@@ -741,7 +758,17 @@
           html5QrcodeScanner.clear();
         }
       }
-      
+
+      // Clean Goal
+      cleanGoal.addEventListener("click", function (){
+        //let goalForm = document.querySelector("#formGoal").reset();
+        let goalForm = document.querySelector("#formGoal");
+        let inputs = goalForm.getElementsByTagName("input");
+        for (i = 0; i < inputs.length; i++) {
+          inputs[i].value = "";
+        }
+      })
+
       // Modal Attendance
       function attendanceModal() {
         $("#assistance").modal("show");
@@ -760,9 +787,6 @@
       // Modal Conversation
       function conversationModal() {
         formAction.value = "conversations";
-        //document.querySelector("#action").value = "conversations";
-        //divAbsence.style.display = 'none';
-        //absence.required = false;
         document.querySelector("#formData").reset();
         divCommunicate.style.display = 'none';
         communicate.required = false;
@@ -771,9 +795,6 @@
       }
       // Modal Goal
       function goalModal() {
-        //document.querySelector("#action").value = "conversations";
-        //divAbsence.style.display = 'none';
-        //absence.required = false;
         $("#goal").modal("show");
       }
 
@@ -886,31 +907,65 @@
       formGoal.addEventListener("submit", sendDataGoal);
       async function sendDataGoal(e) {
         e.preventDefault();
-        for (const loading of loadings) {loading.classList.add("form__loading--active");}
         let aWeek = weekGoal.value;
+        let validFloat = /^\d*\.?\d*$/;
+        let cantErrorGoal = 0;
 
-        let data = [];
-        let inputsText = document.querySelectorAll('input[type=text]')
-        for (let i = 0; i < inputsText.length; i++) {
-          let alumnData = inputsText[i].id + ',' + inputsText[i].value
-          data.push(alumnData)
+        let inputsGoals = document.querySelectorAll('input[type=text]');
+        for (let inputGoal of inputsGoals) {
+          if(!validFloat.test(inputGoal.value)){
+            cantErrorGoal += 1;
+          }
+          let inputGoalV = inputGoal.value;
+          let lastChar = inputGoalV.at(-1);
+          if(lastChar == "."){
+            inputGoal.value = inputGoalV.slice(0, -1);
+          }
         }
 
-        google.script.run.withSuccessHandler(result => {
+        if(cantErrorGoal >= 1){
           Swal.fire({
-            icon: 'success',
-            title: 'Exito',
-            text: 'Las metas fueron guardadas correctamente!',
+            icon: 'error',
+            title: 'Error',
+            text: 'El Formato de las metas debe ser Entero o decimal ejemplo: "500.20  o 500"',
             showConfirmButton: false,
             timer: 3000
           })
-          $("#goal").modal("hide");
-          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-          formAttendanceList.reset();
-        }).withFailureHandler(err =>{
-          console.log("Error");
-          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-        }).senddatagoal(data, aWeek, tutorCycle.value);
+        } else {
+          if(aWeek >= currentWeek){
+            for (const loading of loadings) {loading.classList.add("form__loading--active");}
+
+            let data = [];
+            let inputsText = document.querySelectorAll('input[type=text]');
+            for (let i = 0; i < inputsText.length; i++) {
+              let alumnData = inputsText[i].id + ',' + inputsText[i].value
+              data.push(alumnData)
+            }
+
+            google.script.run.withSuccessHandler(result => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Exito',
+                text: 'Las metas fueron guardadas correctamente!',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              $("#goal").modal("hide");
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }).withFailureHandler(err =>{
+              console.log("Error");
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }).senddatagoal(data, aWeek, tutorCycle.value);
+          }else{
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se puede actualizar la semana anterior.',
+              showConfirmButton: false,
+              timer: 2000
+            })
+          }
+        }
       }
 
       // CSV To Array
@@ -962,10 +1017,7 @@
           let aWeek = weekDni.value;
           let aMode = "dni";
 
-          console.log(aDni, aType, aWeek)
-
           google.script.run.withSuccessHandler(result => {
-            console.log(result)
             if(result == "ok"){
               // Success
               Swal.fire({
@@ -1081,16 +1133,30 @@
         return promise1;
       }
       window.addEventListener('beforeunload', function (e) {
-        // Cancel the event
         e.preventDefault();
-        // Chrome requires returnValue to be set
         e.returnValue = '3';
       });
     } else {
       // Show Loading & Hide Container
       loading.classList.add("loading--active");
       for (const container of containers) {container.parentNode.removeChild(container);}
-      
+    }
+
+
+    // Restric Goal imputs
+    let valueBeforePress;
+    let validFloat = /^\d*\.?\d*$/;
+    function goalValuePress(e){
+      let inputVal = e.value;
+      if(validFloat.test(inputVal)){
+        valueBeforePress = e.value;
+      }
+    }
+    function validateInputGoal(e) {
+      let inputVal = e.value;
+      if(!validFloat.test(inputVal)){
+        e.value = valueBeforePress;
+      }
     }
   </script>
 
