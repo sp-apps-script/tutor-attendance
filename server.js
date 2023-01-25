@@ -125,7 +125,6 @@ function senddataall(data,type,week,cycle) {
   let headerAttendance = ["id_alumn", "tutor_email", "week", "day", "state", "date", "time","cycle"];
   let tableId = 'alumn_attendance';
   
-  //let alumnValid = getAlumnsByTutorDni(userEmail,cycle,data[0]);
   let cantAttendace = getAlumnsByCycleTable(cycle, userEmail, getDate_(), tableId, week);
   
   let newRow = [];
@@ -455,7 +454,7 @@ function getAlumnsAttendanceByDate(id_alumn, userEmail, date) {
   let request = {
     query: 'SELECT * ' +
       'FROM '+ projectId +'.'+datasetId +'.'+ tableId + ' ' +
-      'WHERE id_alumn = "' + id_alumn + '" AND tutor_email = "'+ userEmail +'" AND date = '+ date +
+      'WHERE id_alumn = "' + id_alumn + '" AND tutor_email = "'+ userEmail +'" AND date = '+ date + ' AND state is not null' +
       'LIMIT 100;',
     useLegacySql: false
   };
