@@ -23,10 +23,27 @@
       color: #888;
       font-size: 14px;
     }
-
     p {
       color: #888;
       font-size: 14px;
+    }
+    a {
+      text-decoration: none;
+      color: #555;
+    }
+    i {
+      font-size: 3rem;
+    }
+    input[type='text']{
+      width: 150px !important;
+      max-height: 27px !important;
+    }
+
+    .dhide{
+      display: none !important;
+    }
+    .dblock{
+      display: block !important;
     }
 
     .loading {
@@ -35,35 +52,22 @@
       right: 0;
       z-index: 1;
     }
-
     .loading--active {
       display: flex;
 
     }
 
-    .form__loading,
-    .form__loading2 {
+    .form__loading,.tutor__loading {
       display: none;
       left: 0;
       right: 0;
     }
-
-    .form__loading--active {
+    .form__loading--active,.tutor__loading--active {
       display: flex;
       z-index: 999;
     }
-
-    a {
-      text-decoration: none;
-      color: #555;
-    }
-
-    i {
-      font-size: 3rem;
-    }
-    input[type='text']{
-      width: 150px !important;
-      max-height: 27px !important;
+    .form-check-group {
+      width: 60px;
     }
 
     .box {
@@ -73,7 +77,6 @@
       width: 100%;
       transition: all ease .5s;
     }
-
     .box:hover {
       border-color: #0d6efd !important;
       box-shadow: 0 0 5px #0d6efd;
@@ -84,31 +87,25 @@
     #assistantModalLabel {
       text-decoration: uppercase !important;
     }
-
     #list-attendance,#list-alumns-goal {
       overflow-y: scroll;
       max-height: 350px !important;
       padding-right: 0.5rem;
     }
-
-    .list-item {
-      padding-left: 0 !important;
-    }
-
-    .list-item:hover {
-      background-color: rgba(0, 0, 0, 0.1) !important;
-    }
-
     .attendance-type {
       margin-right: 27px;
     }
 
-    .form-check-group {
-      width: 60px;
+    .list-item {
+      padding-left: 0 !important;
+    }
+    .list-item:hover {
+      background-color: rgba(0, 0, 0, 0.1) !important;
     }
 
-    .form-check-group input {}
-
+    .link-v:hover{
+      text-decoration: underline;
+    }
     .upload{
       color: #0d6efd;
       font-size: 2rem !important;
@@ -116,11 +113,11 @@
   </style>
 
   <!-- Script -->
-  <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-  </script>
-  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/html5-qrcode@2.3.4/html5-qrcode.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -128,6 +125,14 @@
   <div class="loading w-100 vh-100 position-absolute justify-content-center align-items-center bg-white opacity-100">
     <div>
       <p class="h2 align-items-center"><i class="fa-solid fa-ban"></i> USUARIO NO AUTORIZADO</p>
+    </div>
+  </div>
+  
+  <!-- Loading Tutors-->
+  <div
+    class="tutor__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75">
+    <div class="spinner-border" role="status">
+      <span class="sr-only"></span>
     </div>
   </div>
 
@@ -145,20 +150,34 @@
   <!-- Email Tag -->
   <div class="container pt-3 mb-4">
     <div class="row">
-      <div class="col-12 col-sm-6 d-flex align-items-center mb-2">
-        <p class="mb-0"><b class="mr-3">EMAIL:</b> <span id="email"><?= email ?></span></p>
+      <div class="col-12 col-lg-3 mb-3">
+        <p class="mb-0 pt-2"><b class="mr-3">EMAIL:</b> <span id="email-tag"></span></p>
+      </div> 
+
+      <div class="col-12 col-lg-5 mb-3">
+        <div class="row d-flex justify-content-lg-center">
+          <div class="col-auto">
+            <label for="tutor-list" class="col-form-label fw-bold" id="tutor-tag">TUTOR:</label>
+          </div>
+          <div class="col-auto">
+            <select class="form-select" id="tutor-list" name="tutor-list">
+            </select>
+          </div>
+        </div>
       </div>
-      <div class="col-12 col-sm-6 d-flex justify-content-end">
-        <div class="row g-3 align-items-center">
+
+      <div class="col-12 col-lg-4 mb-3">
+        <div class="row d-flex justify-content-lg-end">
           <div class="col-auto">
             <label for="tutor-cycle" class="col-form-label fw-bold">CICLO:</label>
           </div>
           <div class="col-auto">
             <select class="form-select" id="tutor-cycle" name="tutor-cycle">
-          </select>
+            </select>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -300,6 +319,12 @@
                       </select>
                     </div>
                   </div>
+                  <div class="mb-3 mt-3">
+                    <a class="text-primary link-v" href="https://drive.google.com/uc?id=1VthINclWEiwL-Cug-ruq5vInKa37gw9s&export=download" download>
+                      <i class="fa-solid fa-download text-primary" style="font-size:14px"></i> 
+                      Descargar plantilla
+                    </a>
+                  </div>
                   <div class="mb-2">
                     <label for="csvFile" class="form-label w-100">
                       Seleccionar archivo CSV
@@ -308,10 +333,11 @@
                         <div class="position-absolute w-100 bg-light h-100 rounded d-flex justify-content-center align-items-center form-control">
                           <i class="fa-solid fa-cloud-arrow-up upload"></i>
                         </div>
-                        <input class="form-control" type="file" id="csvFile" accept=".csv" required oninvalid="this.setCustomValidity('Seleccionar archivo CSV')" oninput="setCustomValidity('')"/>
+                        <input class="form-control" type="file" id="csvFile" accept=".xls,.xlsx" required oninvalid="this.setCustomValidity('Seleccionar archivo xlsx')" oninput="setCustomValidity('')"/>
                       </div>
                     </label>
                     <p id="msg-input"></p>
+                    <p id="result"></p>
                     </div>
                   <div class="modal-footer-no mb-0 d-flex justify-content-end mt-3 gap-2">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -363,7 +389,7 @@
       <div class="modal-content">
         <!-- Loading-->
         <div
-          class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75">
+          class="form__loading w-100 h-100 position-absolute justify-content-center align-items-center bg-white opacity-75 rounded">
           <div class="spinner-border" role="status">
             <span class="sr-only"></span>
           </div>
@@ -410,7 +436,7 @@
 
             <div class="mb-2">
               <label for="observation" class="form-label">Observaciones</label>
-              <textarea class="form-control" id="observation" name="observation" required rows="3"></textarea>
+              <textarea class="form-control" id="observation" name="observation" required rows="3" oninvalid="this.setCustomValidity('Ingresar observaciones')" oninput="setCustomValidity('')" onkeyup="validateObservation(this)"></textarea>
             </div>
           </div>
 
@@ -469,13 +495,22 @@
 
   <script>
     // Api
-    let emailTutor = <?!= JSON.stringify(email) ?>;
-    let apiTutor = <?!= JSON.stringify(apiTutor) ?>;
+    let adminAccess = <?!= JSON.stringify(adminAccess) ?>;
+    let emailAdmin = <?!= JSON.stringify(emailAdmin) ?>;
+    let emailTutor = <?!= JSON.stringify(emailTutor) ?>;
+    let listTutors = <?!= JSON.stringify(listTutors) ?>;
+    let cyclesTutor = <?!= JSON.stringify(cyclesTutor) ?>;
     let show = <?!= show ?>;
+
+    // Data
     let apiAlumns = [];
     let attendanceToday;
     let currentWeek;
+    let dataXls = [];
+    let responseXls = "no";
+    let today = new Date();
     
+    // Div
     let containers = document.querySelectorAll(".container");
     let loading = document.querySelector(".loading");
 
@@ -483,7 +518,7 @@
     if (show == true) {
       // Div
       let loadings = document.querySelectorAll(".form__loading");
-      //let loading = document.querySelector(".form__loading");
+      let loadingTutor = document.querySelector(".tutor__loading");
       let divCommunicate = document.querySelector(".hide-communicate");
       let divAbsence = document.querySelector(".hide-absence");
       let qrTab = document.querySelector("#nav-qr-tab");
@@ -491,8 +526,11 @@
       let listAttendance = document.querySelector('#list-attendance');
       let listAlumnsGoal = document.querySelector('#list-alumns-goal');
       let cleanGoal = document.querySelector("#clean-goal");
+      let emailTag = document.querySelector("#email-tag");
+      let tutorTag = document.querySelector("#tutor-tag");      
 
       // Field Form
+      let tutorList = document.querySelector("#tutor-list");
       let tutorCycle = document.querySelector("#tutor-cycle");
       let selectAlumns = document.querySelector('#id_alumn');
       let fileInput = document.querySelector('#csvFile');
@@ -512,38 +550,113 @@
       let weekQr = document.querySelector("#week-qr");
       let weekVirtual = document.querySelector("#week-virtual");
       let weekDni = document.querySelector("#week-dni");
-      let weekGoal = document.querySelector("#week-goal");
+      let weekGoal = document.querySelector("#week-goal");  
 
-      // Create List Tutor cycle
-      for (const [index, value] of apiTutor.entries()) {
-        const opt = document.createElement('option');
-        opt.value = value[3];
-        opt.innerHTML = `${value[3]}`;
-        tutorCycle.appendChild(opt);
-      }
-      
       // Load Web
       window.addEventListener("load", (event) => {
+        createListCyclesByTutor()
         loadAlumns();
       });
 
-      // Load Alumns
+      // Validate User Admin
+      if(adminAccess){
+        emailTag.innerText = emailAdmin;
+
+        for (const [index, value] of listTutors.entries()) {
+          const opt = document.createElement('option');
+          opt.value = value[0];
+          opt.innerHTML = `${value[0]}`;
+          tutorList.appendChild(opt);
+        }
+        
+        // Change Tutors List
+        tutorList.addEventListener('change', function (e) {
+          loadingTutor.classList.add("tutor__loading--active");
+          emailTutor = tutorList.value;
+
+          // Get Alumns by cycle
+          google.script.run.withSuccessHandler(response => {
+            //console.log(response);
+            cyclesTutor = [...response];
+
+            loadCyclesTutor();
+            setTimeout(() => {}, "1500")
+            loadAlumns();
+
+            loadingTutor.classList.remove("tutor__loading--active");
+          }).withFailureHandler(err =>{
+            console.log("Error");
+          }).getCyclesByEmailTutor(tutorList.value);
+        })
+      }else{
+        emailTag.innerText = emailTutor;
+        tutorList.parentNode.removeChild(tutorList);
+        tutorTag.parentNode.removeChild(tutorTag);
+      }
+
+      // Load Cycles by Tutor
+      function loadCyclesTutor(){
+        while (tutorCycle.hasChildNodes()) {
+          tutorCycle.removeChild(tutorCycle.firstChild);
+        }
+        createListCyclesByTutor();
+      }
+      // Create List Cycles by Tutor
+      function createListCyclesByTutor(){
+        for (const [index, value] of cyclesTutor.entries()) {
+          const opt = document.createElement('option');
+          opt.value = value[3];
+          opt.innerHTML = `${value[3]}`;
+          tutorCycle.appendChild(opt);
+        }
+      }
+      // Change Cycle List
+      tutorCycle.addEventListener('change', function (e) {
+        loadAlumns();
+      })
+
+      // Load Alumns by Cycle
       function loadAlumns(){
+        let cycleModality = tutorCycle.value;
+        let modalityLetter = cycleModality.substr(cycleModality.length - 3,1);
+
+        // Validate Tabs by Modality 
+        if(modalityLetter == "V"){
+          document.querySelector("#nav-virtual-tab").classList.remove("dhide");
+          document.querySelector("#nav-virtual-tab").classList.add("dblock");
+          
+          document.querySelector("#nav-qr-tab").classList.remove("dblock");
+          document.querySelector("#nav-qr-tab").classList.add("dhide");
+          
+          document.querySelector("#nav-dni-tab").classList.remove("dblock");
+          document.querySelector("#nav-dni-tab").classList.add("dhide");
+        }else{
+          document.querySelector("#nav-virtual-tab").classList.remove("dblock");
+          document.querySelector("#nav-virtual-tab").classList.add("dhide");
+
+          document.querySelector("#nav-qr-tab").classList.remove("dhide");
+          document.querySelector("#nav-qr-tab").classList.add("dblock");
+
+          document.querySelector("#nav-dni-tab").classList.remove("dhide");
+          document.querySelector("#nav-dni-tab").classList.add("dblock");
+        }
+
         for (const loading of loadings) {loading.classList.add("form__loading--active");}
+
         // Get Alumns by cycle
         google.script.run.withSuccessHandler(result => {
           apiAlumns = result[0];
           attendanceToday = result[1];
           goalWeek = result[2];
           
+          // Call List Alumns 
           createAlumns(apiAlumns,attendanceToday,goalWeek)
           for (const loading of loadings) {loading.classList.remove("form__loading--active");}
         }).withFailureHandler(err =>{
           console.log("Error");
         }).getAlumnsByCycle(emailTutor, tutorCycle.value);
       }
-
-      // Create Alumns
+      // Create List Alumns
       function createAlumns(apiAlumns,attendanceToday,goalWeek){
         while (listAttendance.hasChildNodes()) {
           listAttendance.removeChild(listAttendance.firstChild);
@@ -555,7 +668,7 @@
           listAlumnsGoal.removeChild(listAlumnsGoal.firstChild);
         }
 
-        // Create List Alumn Form
+        // Create List Alumn in Form
         for (const [index, value] of apiAlumns.entries()) {
           const opt = document.createElement('option');
           opt.value = value[0];
@@ -563,7 +676,7 @@
           selectAlumns.appendChild(opt);
         }
 
-        // Create List Alumn Attendance
+        // Create List Alumn in Attendance
         for (let [index, value] of apiAlumns.entries()) {
           index = index + 1;
 
@@ -594,6 +707,7 @@
           checkInput2.id = value[0] + ",T";
           checkInput3.id = value[0] + ",F";
 
+          // Validate Attendance Checkbox Today
           if(attendanceToday == "attendance_true"){
             if(value[3] == "A"){
               checkInput1.checked = true;
@@ -603,9 +717,8 @@
               checkInput3.checked = true;
             }
           }else{
-            checkInput1.checked = true;
+            checkInput3.checked = true;
           }
-
 
           checkInput1.name = "alumn" + index;
           checkInput2.name = "alumn" + index;
@@ -626,7 +739,7 @@
           listAttendance.appendChild(listDiv);
         }
 
-        // Select Attendance
+        // Validate Attendance Select Today
         if(attendanceToday == "attendance_true"){
           let alumSelected = "1";
           for(let item of apiAlumns){
@@ -640,7 +753,7 @@
           weekList.getElementsByTagName('option')[0].selected = 'selected';
         }
 
-        // Create List Alumn Goal
+        // Create List Alumn in Goal
         for (let [j, item] of apiAlumns.entries()) {
           j = j + 1;
 
@@ -658,9 +771,6 @@
           checkInput1.type = "text";
           checkInput1.id = item[0];
 
-          //checkInput1.onkeypress = "validateInputGoal(this)";
-          //checkInput1.setAttribute("onkeypress", "return isNumberKeyDecimal(event)");
-          //checkInput1.setAttribute("onkeypress", "filterFloatInput(this)");
           checkInput1.setAttribute("onkeypress", "goalValuePress(this)");
           checkInput1.setAttribute("onkeyup", "validateInputGoal(this)");
 
@@ -687,7 +797,7 @@
           listAlumnsGoal.appendChild(listDiv);
         }
 
-        // Select Goal
+        // Validate Goal Select Today
         if(goalWeek == "goal_true"){
           let alumSelectedGoal = "1";
           for(let item of apiAlumns){
@@ -704,7 +814,7 @@
         }
       }
       
-      // Create List Week
+      // Create List Weeks
       for (let j = 1; j <= 52; j++) {
         let opt1 = document.createElement('option');
         let opt2 = document.createElement('option');
@@ -729,45 +839,6 @@
         weekDni.appendChild(opt4);
         weekGoal.appendChild(opt5);
       }
-
-      // Change Cycle List
-      tutorCycle.addEventListener('change', function (e) {
-        loadAlumns()
-        //weekList.getElementsByTagName('option')[1].selected = 'selected';
-      })
-
-      // Change File State
-      fileInput.addEventListener('change', function (e) {
-        let name = document.getElementById("csvFile").files[0].name;
-        let nextSibling = e.target.nextElementSibling
-        fileLabel.innerText = name;
-      })
-      
-      // QR Select
-      weekQr.addEventListener("change", activeCam);
-      function activeCam(){
-        let w = weekQr.value;
-
-        if(w != ""){
-          setTimeout(function(){
-            html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader", { fps: 10, qrbox: 250 });
-            html5QrcodeScanner.render(onScanSuccess);
-          },200);
-        }else{
-          html5QrcodeScanner.clear();
-        }
-      }
-
-      // Clean Goal
-      cleanGoal.addEventListener("click", function (){
-        //let goalForm = document.querySelector("#formGoal").reset();
-        let goalForm = document.querySelector("#formGoal");
-        let inputs = goalForm.getElementsByTagName("input");
-        for (i = 0; i < inputs.length; i++) {
-          inputs[i].value = "";
-        }
-      })
 
       // Modal Attendance
       function attendanceModal() {
@@ -798,112 +869,68 @@
         $("#goal").modal("show");
       }
 
-      // Send Data Forms
+      // Send Data Form
       formData.addEventListener("submit", sendDataForm);
       async function sendDataForm(e) {
         e.preventDefault();
-        for (const loading of loadings) {loading.classList.add("form__loading--active");}
-        let fAlumn = alumn.value;
-        let fCommunicate = communicate.value;
-        let fAbsence = absence.value;
-        let fObservation = observation.value;
-        let fAction = formAction.value;
-        let fcycle = tutorCycle.value;
 
-        google.script.run.sendform(fAlumn,fCommunicate,fAbsence,fObservation,fAction,fcycle);
-
-        for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-        $("#conversation").modal("hide");
-        document.querySelector("#formData").reset();
-        Swal.fire({
-          icon: 'success',
-          title: 'Registrado',
-          text: 'El registro fue guardado correctamente!',
-          showConfirmButton: false,
-          timer: 3000
-        })
-      }
-
-      // Send Data Attendance Checkbox
-      formAttendanceList.addEventListener("submit", sendDataAttendanceList);
-      async function sendDataAttendanceList(e) {
-        e.preventDefault();
-        for (const loading of loadings) {loading.classList.add("form__loading--active");}
-        let aWeek = weekList.value;
-        let aType = "check";
-
-        let data = [];
-        let checkboxes = document.querySelectorAll('input[type=radio]:checked')
-        for (let i = 0; i < checkboxes.length; i++) {
-          data.push(checkboxes[i].value)
-        }
-
-        google.script.run.withSuccessHandler(result => {
+        // looking just for spaces   
+        if(observation.value == " "){
           Swal.fire({
-            icon: 'success',
-            title: 'Exito',
-            text: 'La asistencia fue guardada correctamente!',
+            icon: 'error',
+            title: 'Error',
+            text: 'No se puede enviar el campo vacío',
             showConfirmButton: false,
             timer: 3000
           })
-          //$("#assistance").modal("hide");
-          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-          //formAttendanceList.reset();
-        }).withFailureHandler(err =>{
-          console.log("Error");
-          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-        }).senddataall(data, aType, aWeek, tutorCycle.value);
-      }
-
-      // Send Data Attendance File
-      formAttendanceVirtual.addEventListener("submit", sendDataAttendanceVirtual);
-      async function sendDataAttendanceVirtual(e) {
-        e.preventDefault();
-        for (const loading of loadings) {loading.classList.add("form__loading--active");}
-        let input = csvFile.files[0];
-        let reader = new FileReader();
-        let aWeek = weekVirtual.value;
-        let aType = typeAttendanceVirtual.value;
-
-        reader.readAsText(input);
-        let result = [];
-        let data;
-
-        reader.onload = function (e) {
-          let text = e.target.result;
-          data = csvToArray(text);
-
-          if(data == "no"){
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'el formato no es valido!',
-              showConfirmButton: false,
-              timer: 2000
-            })
-            for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-          }else{
-            google.script.run.withSuccessHandler(result => {
+        } else {
+          for (const loading of loadings) {loading.classList.add("form__loading--active");}
+          let fAlumn = alumn.value;
+          let fCommunicate = communicate.value;
+          let fAbsence = absence.value;
+          let fObservation = observation.value;
+          let fAction = formAction.value;
+          let fcycle = tutorCycle.value;
+          
+          google.script.run.withSuccessHandler(result => {
+            //console.log(result)
+            if(result.msg == "ok"){
               Swal.fire({
                 icon: 'success',
-                title: 'Exito',
-                text: 'La asistencia fue guardada correctamente!',
+                title: 'Registrado',
+                text: 'El registro fue guardado correctamente!',
                 showConfirmButton: false,
                 timer: 3000
               })
-              $("#assistance").modal("hide");
+              
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-              formAttendanceVirtual.reset();
-              fileLabel.innerText = "";
-            }).withFailureHandler(err =>{
-              console.log("Error");
+              $("#conversation").modal("hide");
+              document.querySelector("#formData").reset();
+            }else{
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se ha podido registrar el formulario',
+                showConfirmButton: false,
+                timer: 3000
+              })
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-            }).senddataall(data, aType, aWeek, tutorCycle.value);
-          }
-        };
+            }
+          }).withFailureHandler(err =>{
+            console.log("Error");
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un error en el proceso',
+              showConfirmButton: false,
+              timer: 3000
+            })
+            for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+          }).sendform(fAlumn,fCommunicate,fAbsence,fObservation,fAction,fcycle,emailTutor);
+        }
       }
 
-      // Send Data Goals
+      // Send Data Goal
       formGoal.addEventListener("submit", sendDataGoal);
       async function sendDataGoal(e) {
         e.preventDefault();
@@ -943,74 +970,267 @@
             }
 
             google.script.run.withSuccessHandler(result => {
-              Swal.fire({
-                icon: 'success',
-                title: 'Exito',
-                text: 'Las metas fueron guardadas correctamente!',
+              //console.log(result)
+              if(result.msg == "ok"){
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Registrado',
+                  text: 'Las metas fueron guardadas correctamente!',
+                  showConfirmButton: false,
+                  timer: 3000
+                })
+
+                for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+                //$("#goal").modal("hide");
+              }else{
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se ha podido registrar las metas',
+                  showConfirmButton: false,
+                  timer: 3000
+                })
+                for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+              }
+            }).withFailureHandler(err =>{
+              console.log("Error");
+                Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error en el proceso',
                 showConfirmButton: false,
                 timer: 3000
               })
-              $("#goal").modal("hide");
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-            }).withFailureHandler(err =>{
-              console.log("Error");
-              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-            }).senddatagoal(data, aWeek, tutorCycle.value);
+            }).senddatagoal(data, aWeek, tutorCycle.value, emailTutor);
           }else{
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: 'No se puede actualizar la semana anterior.',
+              text: 'No se puede actualizar la semana anterior',
               showConfirmButton: false,
-              timer: 2000
+              timer: 3000
             })
           }
         }
       }
 
-      // CSV To Array
-      function csvToArray(strCsv, delimiter = ",,,") {
-        if(strCsv.includes('(plazo 1min)"",,,"')){
-          let strExtract = strCsv.split('(plazo 1min)"",,,"');
-          let str = strExtract[1];
+      // Clean Form Goal by Button
+      cleanGoal.addEventListener("click", function (){
+        //let goalForm = document.querySelector("#formGoal").reset();
+        let goalForm = document.querySelector("#formGoal");
+        let inputs = goalForm.getElementsByTagName("input");
+        for (i = 0; i < inputs.length; i++) {
+          inputs[i].value = "";
+        }
+      })
 
-          const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
-          const rows = str.slice(str.indexOf("\n") + 1).split("\n");
-          const arr = rows.map(function (row) {
-            const values = row.split(delimiter);
-            const el = headers.reduce(function (object, header, index) {
-              object[header] = values[index];
-              return object;
-            }, {});
-            return el;
-          });
+      // Send Data Attendance Checkbox
+      formAttendanceList.addEventListener("submit", sendDataAttendanceList);
+      async function sendDataAttendanceList(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let aWeek = weekList.value;
 
-          let listDNI = [];
-          arr.forEach((value, index) => {
-            let valueArray = Object.values(value) + "";
-            let extract = valueArray.split(',');
+        let data = [];
+        let checkboxes = document.querySelectorAll('input[type=radio]:checked')
+        for (let i = 0; i < checkboxes.length; i++) {
+          data.push(checkboxes[i].value)
+        }
 
-            if(extract[2] != undefined){
-              if (extract[2].includes('@')) { 
-                let dni = extract[2].split('@');
-                listDNI.push(dni[0])
+        google.script.run.withSuccessHandler(result => {
+          //console.log(result)
+          if(result.msg == "ok"){
+            Swal.fire({
+              icon: 'success',
+              title: 'Exito',
+              text: 'La asistencia fue guardada correctamente!',
+              showConfirmButton: false,
+              timer: 3000
+            })
+            
+            for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            //$("#assistance").modal("hide");
+          }else{
+
+          }
+        }).withFailureHandler(err =>{
+          console.log("Error");
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }).senddataallCheck(data, aWeek, tutorCycle.value, emailTutor);
+      }
+
+      // Send Data Attendance File
+      formAttendanceVirtual.addEventListener("submit", sendDataAttendanceVirtual);
+      async function sendDataAttendanceVirtual(e) {
+        e.preventDefault();
+        for (const loading of loadings) {loading.classList.add("form__loading--active");}
+        let aWeek = weekVirtual.value;
+        let aType = typeAttendanceVirtual.value;
+
+        if(responseXml == "no"){
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Formato no es valido, revisar plantilla',
+            showConfirmButton: false,
+            timer: 3000
+          })
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }else if(responseXml == "date"){
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Solo se acepta asistencia con la fecha actual',
+            showConfirmButton: false,
+            timer: 3000
+          })
+          for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+        }else{
+          for (const loading of loadings) {loading.classList.add("form__loading--active");}
+          // Insert
+          google.script.run.withSuccessHandler(result => {
+            //console.log(result)
+            if(result.msg == "ok"){
+              Swal.fire({
+                icon: 'success',
+                title: 'Exito',
+                text: 'La asistencia fue agregada correctamente!',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+              setTimeout(() => {}, "500")
+              loadAlumns();
+              $("#assistance").modal("hide");
+              formAttendanceVirtual.reset();
+              fileLabel.innerText = "";
+            }else if(result.msg == "repeat"){
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El archivo ya fue agregado anteriormente',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+             }else if(result.msg == "no_exist"){
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Los alumnos no corresponden al ciclo',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }else{
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se permite subir un archivo con la misma fecha',
+                showConfirmButton: false,
+                timer: 3000
+              })
+              for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+            }
+
+          }).withFailureHandler(err =>{
+            console.log("Error");
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un error en el proceso',
+              showConfirmButton: false,
+              timer: 3000
+            })
+            for (const loading of loadings) {loading.classList.remove("form__loading--active");}
+          }).senddataallFile(dataXls, aType, aWeek, tutorCycle.value, emailTutor);
+        }
+        fileInput.value = "";
+        fileLabel.innerText = "";
+      }
+
+      // Change File State
+      fileInput.addEventListener('change', function (e) {
+        let name = document.getElementById("csvFile").files[0].name;
+        let nextSibling = e.target.nextElementSibling
+        fileLabel.innerText = name;
+      })
+
+      // Xls To Array
+      $("#csvFile").on("change", function (e) {
+        dataXls = [];
+        var file = e.target.files[0];
+        if (!file) return;
+        
+        var FR = new FileReader();
+        FR.onload = function(e) {
+          var data = new Uint8Array(e.target.result);
+          var workbook = XLSX.read(data, {type: 'array'});
+          var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          // header: 1 instructs xlsx to create an 'array of arrays'
+          var result = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+          
+          // data preview
+          var output = document.getElementById('result');
+          
+          let dniXls = [];
+          let dateXls = [];
+          let countXlsBad = 0;
+          let countXlsBadDate = 0;
+
+          result.forEach((value, i) => {
+            if(i >= 1){
+              if(value.length == 5){
+                if(value[2] != null && value[3] != null){
+                  if (value[2].includes('@')) {
+                    let extractDni = value[2].split('@');
+                    let newDateTemp = new Date(value[3]);
+                    let dateTemp = getDateTemp(newDateTemp);
+                    let timeTemp = getTimeTemp(newDateTemp)
+                    dataXls.push(extractDni[0]+ ', '+timeTemp+ ', '+dateTemp)
+
+                    let dateNow = getDateTemp(today);
+                    if(dateTemp != dateNow){
+                      countXlsBadDate++;
+                    }
+                  } else{
+                    countXlsBad++;
+                  }
+                } else {
+                  countXlsBad++;
+                }
+              } else {
+                countXlsBad++;
               }
             }
-          });
+          })
 
-          return listDNI;
-        }else{
-          let msg = "no"
-          return msg;
-        }
-      }
+          if(countXlsBad == 0){
+            responseXml = "yes";
+          }else{
+            responseXml = "no";
+          }
+
+          if(countXlsBadDate == 0){
+            responseXml = "yes";
+          }else{
+            //responseXml = "date";
+            responseXml = "yes";
+          }
+
+        };
+        FR.readAsArrayBuffer(file);
+      });
 
       // Send Data Attendance Dni
       formAttendanceDni.addEventListener("submit", sendDataAttendanceDni);
       async function sendDataAttendanceDni(e) {
         e.preventDefault();
         let digitsDni = dniAttendance.value;
-        if(digitsDni.length == 8){
+        if(digitsDni.length >= 8 && digitsDni.length <= 9){
           for (const loading of loadings) {loading.classList.add("form__loading--active");}
           let aDni = dniAttendance.value;
           let aType = typeAttendanceDni.value;
@@ -1018,26 +1238,30 @@
           let aMode = "dni";
 
           google.script.run.withSuccessHandler(result => {
-            if(result == "ok"){
+            //console.log(result)
+            if(result.msg == "ok"){
               // Success
               Swal.fire({
                 icon: 'success',
                 title: 'Exito',
                 text: 'Las Asistencia fue guardada correctamente!',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 3000
               });
-              loadAlumns()
+
+              //loadAlumns()
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
               formAttendanceDni.reset();
-            }else if(result == "no_exist"){
+              setTimeout(() => {}, "500")
+              loadAlumns();
+            }else if(result.msg == "no_exist"){
               // Error
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'El Usuario no puede ser registrado!',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 3000
               });
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
             }else{
@@ -1045,15 +1269,15 @@
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'La Asistencia ya fue registrada!',
+                text: 'No se puede ingresar la asistencia 2 veces',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 3000
               });
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
             }
           }).withFailureHandler(e =>{
             console.log("Error");
-          }).senddataone(aDni,aType,aWeek,tutorCycle.value,aMode);
+          }).senddataone(aDni,aType,aWeek,tutorCycle.value,aMode, emailTutor);
         }else{
           // Error
           Swal.fire({
@@ -1061,7 +1285,7 @@
             title: 'Error',
             text: 'Ingresar un DNI valido',
             showConfirmButton: false,
-            timer: 2000
+            timer: 3000
           });
           dniAttendance.focus();
         }
@@ -1084,7 +1308,8 @@
           let aMode = "qr";
         
           google.script.run.withSuccessHandler(result => {
-            if(result == "ok"){
+            //console.log(result)
+            if(result.msg == "ok"){
               // Success
               Swal.fire({
                 icon: 'success',
@@ -1094,14 +1319,16 @@
                 timer: 1000
               });
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
-            }else if(result == "no_exist"){
+              setTimeout(() => {}, "500")
+              loadAlumns();
+            }else if(result.msg == "no_exist"){
               // Error
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'El Usuario no puede ser registrado!',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 3000
               });
               for (const loading of loadings) {loading.classList.remove("form__loading--active");}
             }else{
@@ -1117,8 +1344,24 @@
             }
           }).withFailureHandler(e =>{
             console.log("Error");
-          }).senddataone(aDni,atype,aWeek,tutorCycle.value,aMode);
+          }).senddataone(aDni,atype,aWeek,tutorCycle.value,aMode, emailTutor);
           await waitme()
+        }
+      }
+      
+      // QR Select
+      weekQr.addEventListener("change", activeCam);
+      function activeCam(){
+        let w = weekQr.value;
+
+        if(w != ""){
+          setTimeout(function(){
+            html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render(onScanSuccess);
+          },200);
+        }else{
+          html5QrcodeScanner.clear();
         }
       }
       
@@ -1126,8 +1369,6 @@
         promise1=new Promise(function(resolve){
           setTimeout(function(){
             resolve('ok');
-            
-            //html5QrCode.stop()
           },1000)
         })
         return promise1;
@@ -1158,6 +1399,64 @@
         e.value = valueBeforePress;
       }
     }
+
+    // get Time
+    function getTimeTemp(timeTemp){
+      let hour = timeTemp.getHours();
+      let minute = timeTemp.getMinutes();
+      let seconds = timeTemp.getSeconds();
+
+      if(hour <= 9){ hour = "0" + hour;}
+      if(minute <= 9){ minute = "0" + minute;}
+      if(seconds <= 9){ seconds = "0" + seconds;}
+
+      let time = `"${hour}:${minute}:${seconds}"`;
+      return time;
+    }
+    // Get Date
+    function getDateTemp(dateTemp){
+      let year = dateTemp.getFullYear();
+      let month = dateTemp.getMonth() + 1;
+      let day = dateTemp.getDate();
+
+      if(month <= 9){ month = "0" + month;}
+      if(day <= 9){ day = "0" + day;}
+
+      let date = `"${year}-${month}-${day}"`;
+      return date;
+    }
+    
+    // Validate Form white spaces
+    let observationValidate;
+    let observarionClean;
+    function validateObservation(e){        
+      observationValidate = e.value;
+      observarionClean = observationValidate.replace(/\s+/g, ' ');
+      if(observarionClean.charAt(0) == " "){
+        observarionClean = observarionClean.slice(1); 
+      }
+      e.value = observarionClean;
+    }
+
+    //Testing
+    //function testAsync(){
+    //  return new Promise((resolve,reject)=>{
+    //    //here our function should be implemented 
+    //    setTimeout(()=>{
+    //        console.log("Hello from inside the testAsync function");
+    //        resolve();
+    //    ;} , 5000
+    //    );
+    //  });
+    //}
+
+    //async function callerFun(){
+    //  console.log("Caller");
+    //  await testAsync();
+    //  console.log("After waiting");
+    //}
+
+    //callerFun();
   </script>
 
 </body>
